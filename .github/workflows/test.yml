@@ -15,7 +15,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install PARI/GP (Linux)
         if: runner.os == 'Linux'
@@ -39,15 +39,15 @@ jobs:
 
       - name: Lint the Markdown
         if: runner.os == 'Linux'
-        uses: DavidAnson/markdownlint-cli2-action@v20
+        uses: DavidAnson/markdownlint-cli2-action@v24
         with:
           globs: "**/*.md"
 
       - name: Lint the Python tooling
-        uses: astral-sh/ruff-action@v3
+        uses: astral-sh/ruff-action@v4.1.0
 
       - name: Check Python formatting
-        uses: astral-sh/ruff-action@v3
+        uses: astral-sh/ruff-action@v4.1.0
         with:
           args: "format --check"
 
