@@ -45,6 +45,13 @@ SVG output therefore covers every such function at once, with no list to keep
 up to date. gp prints a string wrapped in double quotes, so both the quoted and
 the `print()`ed form are accepted.
 
+**The syntax-definition path handed to pandoc is relative to the document.**
+A frozen result is stored in `_freeze/`, which is committed and replayed on
+other machines and in CI; an absolute path baked in there would not exist on
+the next machine. The base is `options.cwd`, which is the document's own
+directory in both render modes — `options.target.input` is absolute in a
+project render but relative in a standalone one, so it cannot be used.
+
 **A sentinel after the start-up code.**
 gp's own chatter — notably `*** Warning: new stack size` — would otherwise be
 attributed to the first cell.
@@ -85,12 +92,11 @@ are left alone.
 **Documentation site.** `docs/` is a Quarto website that exercises the engine
 on every page, deployed to GitHub Pages.
 
-## Next
+**Caching.** `canFreeze` is on, so `freeze: auto` / `freeze: true` work and
+`_freeze/` replays instead of re-running gp. Quarto owns the cache key; the
+engine only had to make what it stores portable — see the decision below.
 
-**v0.2 — caching.** Implement `canFreeze` and Quarto's freeze mechanism so a
-long factorisation is not recomputed on every render. Needs a cache key over
-the concatenated cell sources plus the `pari-gp:` configuration. This is now
-the largest gap against knitr and jupyter, and the next thing to do.
+## Next
 
 **v0.3 — better output shaping.** An option for gp's `output` default
 (prettymatrix vs raw), and optional LaTeX output via gp's `\x`/TeX mode so that

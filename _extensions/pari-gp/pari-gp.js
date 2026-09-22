@@ -384,6 +384,19 @@ function extensionDir() {
   const url = new URL(".", import.meta.url);
   return decodeURIComponent(url.pathname);
 }
+function syntaxDefinitionPath(documentDir) {
+  const norm = (p) => p.replace(/\\/g, "/").replace(/\/+$/, "");
+  const target = norm(extensionDir() + kSyntaxDefinition).split("/");
+  const from = norm(documentDir).split("/");
+  if (from[0] !== target[0]) return target.join("/");
+  let i = 0;
+  while (i < from.length && i < target.length && from[i] === target[i]) i += 1;
+  const rel = [
+    ...new Array(from.length - i).fill(".."),
+    ...target.slice(i)
+  ];
+  return rel.length > 0 ? rel.join("/") : target.join("/");
+}
 var pariGpEngine = {
   init: (quartoAPI) => {
     quarto = quartoAPI;
@@ -402,12 +415,12 @@ var pariGpEngine = {
   validExtensions: () => [],
   claimsFile: (_file, _ext) => false,
   claimsLanguage: (language, _firstClass) => language.toLowerCase() === kCellLanguage,
-  canFreeze: false,
+  canFreeze: true,
   generatesFigures: true,
   launch: (_context) => {
     return {
       name: kEngineName,
-      canFreeze: false,
+      canFreeze: true,
       markdownForFile: (file) => Promise.resolve(quarto.mappedString.fromFile(file)),
       target: (file, _quiet, markdown) => {
         const md = markdown ?? quarto.mappedString.fromFile(file);
@@ -502,7 +515,7 @@ Set "#| error: true" on the cell (or "error: true" under "pari-gp:" in the front
           filters: []
         };
         if (cfg.highlight) {
-          const xml = extensionDir() + kSyntaxDefinition;
+          const xml = syntaxDefinitionPath(options.cwd);
           const existing = options.format?.pandoc?.["syntax-definitions"];
           const defs = Array.isArray(existing) ? [
             ...existing

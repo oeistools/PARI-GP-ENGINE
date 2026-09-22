@@ -103,6 +103,23 @@ This page sets nothing, so matrices print in gp's usual style:
 factor(360)
 ```
 
+## Caching
+
+Rendering re-runs every cell. For a document with a slow computation, let
+Quarto cache the result:
+
+```yaml
+---
+engine: pari-gp
+freeze: auto      # re-run only when the document itself changes
+---
+```
+
+`freeze: true` never re-runs, `freeze: auto` re-runs when the source changes.
+The cache lives in `_freeze/` and is meant to be committed, so collaborators
+and CI reuse it rather than needing PARI/GP installed. What the engine stores
+there is relative to the document, so the cache replays on any machine.
+
 ## Errors
 
 By default a PARI/GP error stops the render, naming the cell and the message.

@@ -1,0 +1,10 @@
+---
+title: "Freeze"
+engine: pari-gp
+format: html
+freeze: true
+---
+
+```{gp}
+random(10^18)
+```

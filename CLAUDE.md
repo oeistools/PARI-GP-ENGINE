@@ -91,6 +91,11 @@ arrives as `"<svg ...>"`, not `<svg ...>`; `unquoteGpString` handles both that
 and the `print()`ed form. This is why figure detection missed everything the
 first time.
 
+**`options.cwd` is the document's directory; `options.target.input` is not
+reliable.** In a project render `input` is absolute; in a standalone render it
+is relative, and `projectDir` becomes the document's own directory. Anything
+path-related must be computed from `options.cwd`.
+
 **Sentinels.** Cell output is separated by `print("<<<quarto-pari-gp:...>>>")`
 lines with a per-run nonce. A missing sentinel means gp died early or a cell
 left a brace, bracket or string open; the engine reports that rather than

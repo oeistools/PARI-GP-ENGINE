@@ -13,6 +13,10 @@ All notable changes to this project are documented here. The format follows
   `plothrawexport` and `plotexport` — with `fig-cap`, `fig-alt`, `fig-width`
   and `label` for cross-references. HTML formats get the SVG inline; every
   other format gets a file in the document's `_files` directory.
+- **Caching**: `canFreeze` is enabled, so `freeze: auto` and `freeze: true`
+  work — a frozen document is not re-executed. The syntax-definition path
+  stored in `_freeze/` is relative to the document, so the cache replays on
+  another machine and in CI; verified by replaying it from a different path.
 - **Inline code**: `` `{gp} expr` `` in prose is evaluated in document order
   and replaced by its value. Occurrences inside fenced blocks are left alone.
 - **Documentation site** under `docs/`, a Quarto website that uses the engine

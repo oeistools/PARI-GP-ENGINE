@@ -173,6 +173,22 @@ the document's `_files` directory, referenced as an image. `ploth`, `plothraw`
 and `plotdraw` draw to a screen device and so produce nothing during a render —
 use the `…export` forms. `psploth` writes PostScript, which is not picked up.
 
+### Caching
+
+A long factorisation does not need recomputing on every render. Set `freeze`
+and Quarto stores the result under `_freeze/`:
+
+```yaml
+---
+engine: pari-gp
+freeze: auto      # re-run only when the document changes
+---
+```
+
+`freeze: true` never re-runs; `freeze: auto` re-runs when the source changes.
+Commit `_freeze/` so the cache is shared with collaborators and CI — the paths
+the engine stores in it are relative, so it replays on any machine.
+
 ### Errors
 
 By default a PARI/GP error stops the render and reports the cell and the
@@ -290,9 +306,6 @@ inspect them first.
 - Quarto allows **one engine per document**, so a document using `pari-gp`
   cannot also run `{python}` or `{r}` cells. This is a Quarto restriction, not
   one of this extension.
-- **No caching or freeze support yet**: every render re-runs the whole
-  document, so a long factorisation is recomputed each time. This is the
-  next thing on the [plan](PLAN.md).
 - Only SVG plots are captured. PostScript output (`psploth`) is not.
 - gp's output formatting is whatever gp does; there is no LaTeX/TeX output
   mode yet, though `prelude` lets you set gp's `output` default by hand.

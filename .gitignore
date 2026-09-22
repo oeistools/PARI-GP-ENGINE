@@ -4,14 +4,21 @@
 
 # Quarto
 /.quarto/
+# This repository's own _freeze is test output. Users of the extension
+# should commit theirs.
+/_freeze/
 _site/
 docs/_site/
 docs/.quarto/
+# This repository's own _freeze is test output. Users of the extension
+# should commit theirs.
+/_freeze/
 *_files/
 *_cache/
 /examples/*.html
 /tests/cases/*.html
 /tests/expect-fail/*.html
+/tests/freeze/*.html
 
 # PARI/GP
 *.gpi

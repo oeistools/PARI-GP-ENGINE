@@ -103,6 +103,33 @@ if [ -z "$FILTER" ] || [[ "figures" == *"$FILTER"* ]]; then
   fi
 fi
 
+# Freezing: a second render must replay the cache instead of re-running gp,
+# and the cached pandoc options must not contain an absolute path, because
+# _freeze/ is committed and replayed on other machines.
+if [ -z "$FILTER" ] || [[ "freeze" == *"$FILTER"* ]]; then
+  echo "• freeze"
+  rm -rf _freeze tests/freeze/freeze.html
+  if quarto render tests/freeze/freeze.qmd --to html >/tmp/qpg-frz.log 2>&1; then
+    first=$(grep -oE '[0-9]{15,}' tests/freeze/freeze.html | head -1)
+    quarto render tests/freeze/freeze.qmd --to html >/tmp/qpg-frz2.log 2>&1
+    second=$(grep -oE '[0-9]{15,}' tests/freeze/freeze.html | head -1)
+    if [ -n "$first" ] && [ "$first" = "$second" ]; then
+      green "  PASS  a frozen document is not re-executed"; PASS=$((PASS+1))
+    else
+      red   "  FAIL  the document was re-executed despite freeze: true"; FAIL=$((FAIL+1))
+    fi
+    frz=$(find _freeze -name '*.json' | head -1)
+    if grep -q '"\.\./' "$frz" && ! grep -q '"syntax-definitions":\["/' "$frz"; then
+      green "  PASS  the cached syntax-definition path is relative"; PASS=$((PASS+1))
+    else
+      red   "  FAIL  the cached syntax-definition path is not relative"; FAIL=$((FAIL+1))
+    fi
+    check tests/freeze/freeze.html present 'parigp' 'a frozen document is still highlighted'
+  else
+    red "  ERROR rendering tests/freeze/freeze.qmd"; FAIL=$((FAIL+1))
+  fi
+fi
+
 # The error case must make the render fail.
 if [ -z "$FILTER" ] || [[ "fail-on-error" == *"$FILTER"* ]]; then
   echo "• fail-on-error"

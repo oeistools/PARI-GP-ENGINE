@@ -529,6 +529,31 @@ function extensionDir(): string {
   return decodeURIComponent(url.pathname);
 }
 
+/**
+ * The path to hand pandoc for the syntax definition, relative to the document.
+ *
+ * It has to be relative because a frozen execution result is stored in
+ * `_freeze/`, which is committed and replayed on other machines and in CI. An
+ * absolute path baked in there would not exist on the next machine, and the
+ * document would lose its highlighting or fail to render.
+ *
+ * The base is `options.cwd`, which is the document's own directory — and is
+ * also what pandoc runs in. `options.target.input` is *not* usable here: it is
+ * absolute when the file is part of a project render but relative when it is
+ * rendered on its own.
+ */
+function syntaxDefinitionPath(documentDir: string): string {
+  const norm = (p: string) => p.replace(/\\/g, "/").replace(/\/+$/, "");
+  const target = norm(extensionDir() + kSyntaxDefinition).split("/");
+  const from = norm(documentDir).split("/");
+
+  if (from[0] !== target[0]) return target.join("/"); // different roots
+  let i = 0;
+  while (i < from.length && i < target.length && from[i] === target[i]) i += 1;
+  const rel = [...new Array(from.length - i).fill(".."), ...target.slice(i)];
+  return rel.length > 0 ? rel.join("/") : target.join("/");
+}
+
 const pariGpEngine: ExecutionEngineDiscovery = {
   init: (quartoAPI: QuartoAPI) => {
     quarto = quartoAPI;
@@ -550,13 +575,13 @@ const pariGpEngine: ExecutionEngineDiscovery = {
   claimsLanguage: (language: string, _firstClass?: string): boolean | number =>
     language.toLowerCase() === kCellLanguage,
 
-  canFreeze: false,
+  canFreeze: true,
   generatesFigures: true,
 
   launch: (_context: EngineProjectContext): ExecutionEngineInstance => {
     return {
       name: kEngineName,
-      canFreeze: false,
+      canFreeze: true,
 
       markdownForFile: (file: string): Promise<MappedString> =>
         Promise.resolve(quarto.mappedString.fromFile(file)),
@@ -685,7 +710,7 @@ const pariGpEngine: ExecutionEngineDiscovery = {
         // Hand pandoc the syntax definition so ```{gp} cells are highlighted
         // without the author having to wire up `syntax-definitions` by hand.
         if (cfg.highlight) {
-          const xml = extensionDir() + kSyntaxDefinition;
+          const xml = syntaxDefinitionPath(options.cwd);
           const existing = options.format?.pandoc?.["syntax-definitions"];
           const defs = Array.isArray(existing) ? [...existing as string[]] : [];
           if (!defs.some((d) => String(d).endsWith(kSyntaxDefinition))) {
