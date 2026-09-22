@@ -130,6 +130,20 @@ directory that is not inside the project root makes Quarto fall back to
 jupyter and fail with a confusing "Jupyter is not available" message. That is a
 path problem, not an engine problem.
 
+## Markdown
+
+CI runs `markdownlint-cli2`, which is the authority. There is no Node here, so
+it cannot be run locally — which is exactly how a stray double blank line in
+`PLAN.md` once reached CI. `make lint` therefore also runs
+`tools/check_markdown.py`, a pre-flight for the mechanical rules a scripted
+edit is most likely to break: MD009, MD012, MD047 and the delimiter half of
+MD060. `make fmt` fixes them.
+
+It is deliberately narrow and is **not** a substitute for markdownlint. If it
+reports something markdownlint does not, the pre-flight is wrong — it has had
+false positives before, from not resetting the blank-line counter across
+fenced blocks.
+
 ## Python tooling
 
 `tools/gen_xml.py` is the only Python here. `make lint` runs ruff's linter and

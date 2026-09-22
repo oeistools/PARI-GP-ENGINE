@@ -51,13 +51,15 @@ docs: build ## Render the documentation site into docs/_site
 docs-preview: build ## Serve the documentation site with live reload
 	$(QUARTO) preview docs
 
-lint: ## Lint and format-check the Python tooling with ruff
+lint: ## Lint Python with ruff and pre-flight the Markdown
 	$(RUFF) check tools/
 	$(RUFF) format --check tools/
+	$(PYTHON) tools/check_markdown.py *.md
 
-fmt: ## Reformat the Python tooling with ruff
+fmt: ## Reformat Python with ruff and fix the mechanical Markdown rules
 	$(RUFF) format tools/
 	$(RUFF) check --fix tools/
+	$(PYTHON) tools/check_markdown.py --fix *.md
 
 doctor: ## Report whether Quarto, PARI/GP and the engine are usable
 	@./install.sh --check

@@ -42,7 +42,6 @@ on every page, deployed to GitHub Pages.
 `_freeze/` replays instead of re-running gp. Quarto owns the cache key; the
 engine only had to make what it stores portable — see the decision below.
 
-
 ## Settled decisions
 
 These were decided deliberately; change them only with a reason.
