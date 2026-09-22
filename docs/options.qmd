@@ -8,7 +8,7 @@ engine: pari-gp
 Written as `#|` comments at the top of a cell.
 
 | Option | Default | Effect |
-|---|---|---|
+| --- | --- | --- |
 | `eval` | `true` | Run the cell. `false` shows the code without running it. |
 | `echo` | `true` | Show the source. |
 | `output` | `true` | Show what gp printed. `asis` inserts it as raw markdown. |

@@ -37,6 +37,12 @@ jobs:
       - name: Check prerequisites
         run: ./install.sh --check
 
+      - name: Lint the Markdown
+        if: runner.os == 'Linux'
+        uses: DavidAnson/markdownlint-cli2-action@v20
+        with:
+          globs: "**/*.md"
+
       - name: Lint the Python tooling
         uses: astral-sh/ruff-action@v3
 

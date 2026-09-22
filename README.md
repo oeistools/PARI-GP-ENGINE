@@ -15,8 +15,8 @@ documents, and have it highlighted properly.
 
 This repository provides two things that fit together but can be used apart:
 
-| | What it is |
-|---|---|
+| Part | What it is |
+| --- | --- |
 | **Engine** | A Quarto [engine extension](https://quarto.org/docs/extensions/engine.html) that executes ` ```{gp} ` cells with the `gp` interpreter and puts the results in the rendered document. |
 | **Highlighting** | A KDE/Skylighting syntax definition (`pari-gp.xml`) covering all 1200 functions of PARI/GP 2.17, applied automatically — no `syntax-definitions:` wiring needed. |
 
@@ -90,7 +90,7 @@ computes without printing, and one without `;` prints its value.
 Written as `#|` comments at the top of a cell.
 
 | Option | Default | Effect |
-|---|---|---|
+| --- | --- | --- |
 | `eval` | `true` | Run the cell. `false` shows the code without running it. |
 | `echo` | `true` | Show the source. |
 | `output` | `true` | Show what gp printed. `asis` inserts it as raw markdown instead of a code block. |
@@ -155,7 +155,7 @@ A cell whose output is an SVG document becomes a figure. gp returns SVG from
 three functions:
 
 | Function | Draws |
-|---|---|
+| --- | --- |
 | `plothexport("svg", X = a, b, expr)` | a function of one variable |
 | `plothrawexport("svg", xs, ys)` | points you computed yourself |
 | `plotexport("svg", w)` | a drawing built with `plotinit` / `plotrecth` |

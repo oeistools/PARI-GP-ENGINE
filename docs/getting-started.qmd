@@ -10,7 +10,7 @@ engine: pari-gp
 **PARI/GP.** The `gp` executable must be on your `PATH`:
 
 | System | Command |
-|---|---|
+| --- | --- |
 | Debian, Ubuntu | `sudo apt install pari-gp` |
 | macOS | `brew install pari` |
 | Fedora | `sudo dnf install pari-gp` |

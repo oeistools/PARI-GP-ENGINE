@@ -75,7 +75,7 @@ figure**. Every gp function that returns SVG therefore works, and there are
 three of them:
 
 | Function | Draws |
-|---|---|
+| --- | --- |
 | `plothexport("svg", X = a, b, expr)` | a function of one variable |
 | `plothrawexport("svg", xs, ys)` | a list of points you computed yourself |
 | `plotexport("svg", w)` | a drawing built with `plotinit` / `plotrecth` |

@@ -1,0 +1,18 @@
+{
+  // Rules for the Markdown in this repository. Defaults apply except where
+  // noted; each exception has a reason.
+  "default": true,
+
+  // MD013 line-length: prose here is wrapped at 80, but tables of options and
+  // long URLs cannot be, and breaking them would make them harder to read.
+  "MD013": false,
+
+  // MD024 no-duplicate-heading: CHANGELOG.md follows Keep a Changelog, where
+  // every version repeats "### Added", "### Fixed" and so on. Only duplicates
+  // under the *same* parent are a mistake.
+  "MD024": { "siblings_only": true },
+
+  // MD060 table-column-style: one space of padding around every cell,
+  // delimiter rows included.
+  "MD060": { "style": "compact" }
+}

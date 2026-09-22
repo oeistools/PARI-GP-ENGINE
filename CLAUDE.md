@@ -11,7 +11,7 @@ different architecture.
 
 ## Layout
 
-```
+```text
 _extensions/pari-gp/
   _extension.yml    extension manifest (contributes.engines)
   pari-gp.js        COMPILED engine — committed, but never edit by hand
