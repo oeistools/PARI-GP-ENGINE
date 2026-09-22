@@ -1,0 +1,31 @@
+# The saved ChatGPT conversation this project started from: local notes,
+# not part of the extension.
+/draft/
+
+# Quarto
+/.quarto/
+_site/
+*_files/
+*_cache/
+/examples/*.html
+/tests/cases/*.html
+/tests/expect-fail/*.html
+
+# PARI/GP
+*.gpi
+pari.log
+/gpsession*
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/
+
+# Deno / build
+node_modules/
+deno.lock
+
+**/*.quarto_ipynb

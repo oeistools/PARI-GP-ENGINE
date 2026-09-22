@@ -1,0 +1,22 @@
+---
+title: "Hello, PARI/GP"
+engine: pari-gp
+format: html
+---
+
+The engine runs every `{gp}` cell in one `gp` session, so state carries over.
+
+```{gp}
+p = nextprime(10^30)
+```
+
+`p` is still in scope in the next cell:
+
+```{gp}
+factor(p - 1)
+```
+
+```{gp}
+#| echo: false
+print("this cell's code is hidden")
+```

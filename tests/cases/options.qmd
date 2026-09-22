@@ -1,0 +1,25 @@
+---
+title: "Cell options"
+engine: pari-gp
+format: html
+---
+
+```{gp}
+#| echo: false
+print("ECHO_HIDDEN_CODE")
+```
+
+```{gp}
+#| output: false
+print("OUTPUT_HIDDEN")
+```
+
+```{gp}
+#| eval: false
+print("NEVER_RUN")
+```
+
+```{gp}
+#| include: false
+print("NOT_INCLUDED")
+```

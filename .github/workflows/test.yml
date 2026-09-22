@@ -1,0 +1,50 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PARI/GP (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y pari-gp
+
+      - name: Install PARI/GP (macOS)
+        if: runner.os == 'macOS'
+        run: brew install pari
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.9.38
+
+      - name: Report versions
+        run: |
+          quarto --version
+          gp --version 2>&1 | head -3
+
+      - name: Check prerequisites
+        run: ./install.sh --check
+
+      - name: Build the engine from source
+        run: make build
+
+      - name: Fail if the committed engine is out of date
+        run: git diff --exit-code -- _extensions/pari-gp/pari-gp.js
+
+      - name: Run the tests
+        run: make test
+
+      - name: Render the examples
+        run: make examples

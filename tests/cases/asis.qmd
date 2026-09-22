@@ -1,0 +1,11 @@
+---
+title: "Raw markdown output"
+engine: pari-gp
+format: html
+---
+
+```{gp}
+#| output: asis
+#| echo: false
+print("## Generated heading")
+```

@@ -1,0 +1,9 @@
+---
+title: "Unhandled error must stop the render"
+engine: pari-gp
+format: html
+---
+
+```{gp}
+1/0
+```

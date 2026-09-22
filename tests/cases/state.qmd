@@ -1,0 +1,13 @@
+---
+title: "Session state"
+engine: pari-gp
+format: html
+---
+
+```{gp}
+a = 41
+```
+
+```{gp}
+a + 1
+```

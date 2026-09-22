@@ -1,0 +1,17 @@
+---
+title: "Errors"
+engine: pari-gp
+format: html
+---
+
+```{gp}
+#| error: true
+1/0
+```
+
+The session survives the error:
+
+```{gp}
+#| error: true
+6 * 7
+```

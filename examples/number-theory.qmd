@@ -1,0 +1,92 @@
+---
+title: "A tour of PARI/GP in Quarto"
+author: "Enrique Pérez Herrero"
+engine: pari-gp
+format:
+  html:
+    toc: true
+pari-gp:
+  stacksize: 64M
+  precision: 50
+---
+
+## Primes
+
+`nextprime` and `factor` on numbers no fixed-width integer type could hold:
+
+```{gp}
+p = nextprime(10^40)
+factor(p - 1)
+```
+
+The session is shared, so `p` is still here:
+
+```{gp}
+#| output: asis
+#| echo: false
+printf("`p` has %d decimal digits and %d binary digits.\n", #Str(p), exponent(p) + 1);
+```
+
+## Elliptic curves
+
+The modular curve $X_0(11)$, as `ellinit([a1,a2,a3,a4,a6])`:
+
+```{gp}
+E = ellinit([0, -1, 1, -10, -20]);
+[E.disc, E.j]
+```
+
+Its conductor, rank and the first few coefficients of its $L$-series:
+
+```{gp}
+ellglobalred(E)[1]
+ellanalyticrank(E)
+ellan(E, 12)
+```
+
+## Number fields
+
+The field $\mathbb{Q}(\sqrt[3]{2})$:
+
+```{gp}
+K = bnfinit(x^3 - 2, 1);
+[K.disc, K.no, K.reg]
+```
+
+Its ring of integers and fundamental units:
+
+```{gp}
+K.zk
+K.fu
+```
+
+## High precision
+
+`precision: 50` in the front matter applies to the whole document:
+
+```{gp}
+Pi
+exp(1)
+zeta(3)
+```
+
+## Sums and series
+
+```{gp}
+sumdiv(2^10 * 3^5, d, d)
+sum(n = 1, 1000, 1/n^2) * 1.0
+Ser(exp(x), x, 8)
+```
+
+## Showing an error on purpose
+
+```{gp}
+#| error: true
+1/0
+```
+
+The interpreter carries on:
+
+```{gp}
+6 * 7
+```

@@ -1,0 +1,18 @@
+---
+title: "Document configuration"
+engine: pari-gp
+format: html
+pari-gp:
+  precision: 50
+  stacksize: 32M
+  prelude: |
+    myconst = 12345;
+---
+
+```{gp}
+Pi
+```
+
+```{gp}
+myconst
+```

@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "PARI-GP-ENGINE: a Quarto execution engine and syntax highlighter for PARI/GP"
+abstract: >-
+  A Quarto engine extension that executes PARI/GP code blocks with the gp
+  interpreter, keeping one gp session per document, together with a
+  KDE/Skylighting syntax definition for PARI/GP that Quarto applies
+  automatically.
+type: software
+authors:
+  - given-names: "Enrique"
+    family-names: "Pérez Herrero"
+    email: "eph.project1500@gmail.com"
+repository-code: "https://github.com/oeistools/PARI-GP-ENGINE"
+url: "https://github.com/oeistools/PARI-GP-ENGINE"
+version: 0.1.0
+date-released: "2026-09-22"
+license: MIT
+keywords:
+  - quarto
+  - pari-gp
+  - number-theory
+  - computer-algebra
+  - syntax-highlighting
+  - literate-programming
+  - reproducible-research
+references:
+  - type: software
+    title: "PARI/GP"
+    abstract: "A computer algebra system for fast computations in number theory."
+    authors:
+      - name: "The PARI Group"
+        address: "Univ. Bordeaux, CNRS, INRIA, IMB, UMR 5251"
+        city: "Talence"
+        country: FR
+    url: "https://pari.math.u-bordeaux.fr/"
+    license: GPL-2.0-or-later
+  - type: software
+    title: "Quarto"
+    abstract: "An open-source scientific and technical publishing system."
+    authors:
+      - name: "Posit, PBC"
+    url: "https://quarto.org"
+    license: MIT
