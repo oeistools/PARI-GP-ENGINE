@@ -6,67 +6,65 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-### Added
-
-- **Figures**: a cell whose output is an SVG document becomes a figure. This
-  covers every gp function that returns SVG — `plothexport`,
-  `plothrawexport` and `plotexport` — with `fig-cap`, `fig-alt`, `fig-width`
-  and `label` for cross-references. HTML formats get the SVG inline; every
-  other format gets a file in the document's `_files` directory.
-- **Caching**: `canFreeze` is enabled, so `freeze: auto` and `freeze: true`
-  work — a frozen document is not re-executed. The syntax-definition path
-  stored in `_freeze/` is relative to the document, so the cache replays on
-  another machine and in CI; verified by replaying it from a different path.
-- **Inline code**: `` `{gp} expr` `` in prose is evaluated in document order
-  and replaced by its value. Occurrences inside fenced blocks are left alone.
-- **Documentation site** under `docs/`, a Quarto website that uses the engine
-  on every page, deployed to GitHub Pages by `pages.yml`.
-- `make docs` and `make docs-preview`.
-- **ruff** for the Python tooling: configuration in `pyproject.toml`,
-  `make lint` and `make fmt` targets, and lint plus format checks in CI.
-- Status badges in the README (CI, release, latest version, Quarto and PARI/GP
-  versions, licence).
-- `release.yml` workflow: pushing a `v*` tag re-runs the whole test suite,
-  checks the tag against `VERSION`, `_extension.yml` and `CITATION.cff`, builds
-  `.tar.gz` and `.zip` archives of the extension and publishes a GitHub release
-  with that version's changelog section.
-- `make package`, `make release-check` and `make tag` targets.
-
-### Fixed
-
-- `make check` now runs `make examples` as well, which the README already
-  claimed it did.
-- Removed a duplicated `# PARI-GP-ENGINE` heading at the end of the README.
-
 ## [0.1.0] — 2026-09-22
 
 First release.
 
 ### Added
 
-- **Engine**: a Quarto engine extension (`engine: pari-gp`) that executes
-  ` ```{gp} ` cells with the `gp` interpreter. All cells of a document share
-  one gp session, so state carries across cells.
+#### Executing PARI/GP
+
+- A Quarto engine extension (`engine: pari-gp`) that executes ` ```{gp} `
+  cells with the `gp` interpreter. All cells of a document share one gp
+  session, so state carries from one cell to the next.
 - **Cell options**: `eval`, `echo`, `output` (including `output: asis`),
-  `error`, `include`, `classes`, `filename`.
+  `error`, `include`, `classes`, `filename`, `label`, `fig-cap`, `fig-alt`
+  and `fig-width`.
 - **Document options** under `pari-gp:`: `path`, `args`, `stacksize`,
   `primelimit`, `precision`, `bitprecision`, `seriesprecision`, `timeout`,
   `prelude`, `highlight`, and document-wide defaults for the cell options.
-- **Highlighting**: a KDE/Skylighting syntax definition covering the 1200
-  functions of PARI/GP 2.17, plus comments, strings, numbers, metacommands,
-  member access and `default()` names. The engine passes it to Pandoc itself,
-  so no `syntax-definitions:` entry is needed.
-- **`tools/gen_xml.py`**: regenerates the syntax definition by asking the
-  installed `gp` for its own function list (`make syntax`).
-- **Errors**: gp errors stop the render by default with a message naming the
-  cell, or are rendered into the document with `#| error: true`. gp
+- **Inline code**: `` `{gp} expr` `` in prose is evaluated in document order
+  and replaced by its value. Occurrences inside fenced blocks are left alone.
+- **Errors**: a gp error stops the render by default with a message naming the
+  cell, or is rendered into the document with `#| error: true`. gp
   `*** Warning:` lines are never treated as errors.
+- **Caching**: `freeze: auto` and `freeze: true` work — a frozen document is
+  not re-executed. What the engine stores in `_freeze/` is relative to the
+  document, so the cache replays on another machine and in CI.
+
+#### Figures
+
+- A cell whose output is an SVG document becomes a figure, which covers every
+  gp function that returns SVG: `plothexport`, `plothrawexport` and
+  `plotexport`. Captions, alt text, width and `fig-` labels for
+  cross-references are honoured.
+- HTML formats get the SVG inline; every other format gets a file in the
+  document's `_files` directory, referenced as an image.
+
+#### Highlighting
+
+- A KDE/Skylighting syntax definition covering the 1200 functions of PARI/GP
+  2.17, plus comments, strings, numbers, metacommands, member access and
+  `default()` names. The engine passes it to Pandoc itself, so a document
+  needs no `syntax-definitions:` entry.
+- `tools/gen_xml.py` regenerates it by asking the installed `gp` for its own
+  function list (`make syntax`).
+
+#### Getting it and working on it
+
 - **Installers**: `install.sh` and `install.ps1`, which check Quarto (>= 1.9)
   and PARI/GP before installing and report precisely what is missing.
-- **Makefile** with `build`, `syntax`, `test`, `examples`, `check`, `doctor`,
-  `clean` and `bump-version` targets.
-- **Tests**: `tests/run-tests.sh` renders test documents and checks the output,
-  including that an unhandled gp error makes the render fail.
+- **Makefile**: `build`, `syntax`, `test`, `examples`, `docs`, `check`,
+  `doctor`, `lint`, `fmt`, `package`, `release-check`, `tag`, `clean` and
+  `bump-version`.
+- **Documentation site** under `docs/`, a Quarto website that uses the engine
+  on every page, published to GitHub Pages.
+- **Tests**: `tests/run-tests.sh` renders test documents and checks the
+  output — 32 checks, including that an unhandled gp error makes the render
+  fail and that a frozen document is not re-executed.
+- **CI**: tests on Linux and macOS, markdownlint, ruff, and a check that the
+  committed `pari-gp.js` matches its TypeScript source. A `v*` tag builds the
+  release archives and publishes the release.
 
 [Unreleased]: https://github.com/oeistools/PARI-GP-ENGINE/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/oeistools/PARI-GP-ENGINE/releases/tag/v0.1.0

@@ -1,8 +1,7 @@
 # PARI-GP-ENGINE
 
 [![CI](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/test.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/test.yml)
-[![Release](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/release.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/release.yml)
-[![Latest release](https://img.shields.io/github/v/release/oeistools/PARI-GP-ENGINE?label=release&sort=semver)](https://github.com/oeistools/PARI-GP-ENGINE/releases/latest)
+[![Latest release](https://img.shields.io/github/v/release/oeistools/PARI-GP-ENGINE?label=release&sort=semver&display_name=tag)](https://github.com/oeistools/PARI-GP-ENGINE/releases/latest)
 [![Quarto](https://img.shields.io/badge/quarto-%E2%89%A5%201.9-2596be)](https://quarto.org)
 [![PARI/GP](https://img.shields.io/badge/PARI%2FGP-2.17-8b0000)](https://pari.math.u-bordeaux.fr/)
 [![Pages](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/pages.yml/badge.svg)](https://oeistools.github.io/PARI-GP-ENGINE/)
