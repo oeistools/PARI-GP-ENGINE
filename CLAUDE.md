@@ -43,6 +43,17 @@ mistakes. `make test` renders the documents in `tests/` and greps the HTML.
 Both must pass before a change is finished. Add a case in `tests/cases/` for
 any behaviour worth keeping.
 
+## Releasing
+
+`make bump-version V=x.y.z` updates `VERSION`, `_extension.yml` and
+`CITATION.cff`; write the `CHANGELOG.md` section by hand; `make release-check`
+verifies all four agree; `make tag` pushes the tag, and
+`.github/workflows/release.yml` publishes the release.
+
+Release notes are written to a **file** and passed with `gh release create
+--notes-file`, never interpolated into the command line: the changelog contains
+backticks, which a shell would run as command substitution.
+
 ## Requirements in this environment
 
 `quarto` (>= 1.9) and `gp` are both installed here, so changes can and should

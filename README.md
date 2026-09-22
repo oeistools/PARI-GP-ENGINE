@@ -1,5 +1,12 @@
 # PARI-GP-ENGINE
 
+[![CI](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/test.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/test.yml)
+[![Release](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/release.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/release.yml)
+[![Latest release](https://img.shields.io/github/v/release/oeistools/PARI-GP-ENGINE?label=release&sort=semver)](https://github.com/oeistools/PARI-GP-ENGINE/releases/latest)
+[![Quarto](https://img.shields.io/badge/quarto-%E2%89%A5%201.9-2596be)](https://quarto.org)
+[![PARI/GP](https://img.shields.io/badge/PARI%2FGP-2.17-8b0000)](https://pari.math.u-bordeaux.fr/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 Run [PARI/GP](https://pari.math.u-bordeaux.fr/) code inside [Quarto](https://quarto.org)
 documents, and have it highlighted properly.
 
@@ -200,6 +207,31 @@ two pipes. That is deliberate: a gp error is reported *between* two results of
 the same cell, and only the merge preserves that position. A sentinel after the
 start-up code keeps gp's own chatter out of the first cell.
 
+### Continuous integration
+
+Two GitHub Actions workflows:
+
+- [`test.yml`](.github/workflows/test.yml) runs on every push and pull request,
+  on Linux and macOS: it installs PARI/GP and Quarto, checks the prerequisites,
+  rebuilds the engine from TypeScript and **fails if the committed
+  `pari-gp.js` is out of date**, then runs the tests and renders the examples.
+- [`release.yml`](.github/workflows/release.yml) runs when a `v*` tag is
+  pushed: it re-runs all of the above, checks that the tag agrees with
+  `VERSION`, `_extension.yml` and `CITATION.cff`, builds the archives and
+  publishes a GitHub release with that version's changelog section.
+
+### Releasing
+
+```bash
+make bump-version V=0.2.0   # update VERSION, _extension.yml, CITATION.cff
+# write the 0.2.0 section in CHANGELOG.md, then commit
+make release-check          # verify everything agrees before tagging
+make tag                    # tag v0.2.0 and push it — CI publishes the release
+```
+
+`make package` builds the release archives locally into `dist/` if you want to
+inspect them first.
+
 ## Limitations
 
 - Quarto allows **one engine per document**, so a document using `pari-gp`
@@ -224,4 +256,3 @@ links against it.
 ## Citing
 
 See [CITATION.cff](CITATION.cff), or use GitHub's "Cite this repository" button.
-# PARI-GP-ENGINE

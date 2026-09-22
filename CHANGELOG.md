@@ -6,6 +6,20 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Status badges in the README (CI, release, latest version, Quarto and PARI/GP
+  versions, licence).
+- `release.yml` workflow: pushing a `v*` tag re-runs the whole test suite,
+  checks the tag against `VERSION`, `_extension.yml` and `CITATION.cff`, builds
+  `.tar.gz` and `.zip` archives of the extension and publishes a GitHub release
+  with that version's changelog section.
+- `make package`, `make release-check` and `make tag` targets.
+
+### Fixed
+
+- Removed a duplicated `# PARI-GP-ENGINE` heading at the end of the README.
+
 ## [0.1.0] — 2026-09-22
 
 First release.
