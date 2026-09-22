@@ -38,6 +38,13 @@ A gp error is emitted *between* two results of the same cell. Reading two pipes
 loses that position; `2>&1` in the shell preserves it. The cost is a `/bin/sh`
 (or `cmd`) in between, which is acceptable.
 
+**A figure is recognised by its output, not by a cell option.**
+gp has no "current figure" to capture: a plot arrives because the author asked
+for it by calling an `…export` function, whose value *is* the SVG. Detecting
+SVG output therefore covers every such function at once, with no list to keep
+up to date. gp prints a string wrapped in double quotes, so both the quoted and
+the `print()`ed form are accepted.
+
 **A sentinel after the start-up code.**
 gp's own chatter — notably `*** Warning: new stack size` — would otherwise be
 attributed to the first cell.
@@ -62,18 +69,28 @@ That is the file Quarto loads on `quarto add`; users must not need Deno.
 **MIT, and gp is driven as an external program.**
 No PARI source is included or linked, so the GPL does not reach this code.
 
-## Next
+## Done since 0.1.0 (unreleased)
 
-**v0.2 — figures.** Capture `plothraw` / `psploth` / `plotexport` output as
-images and emit them as figures, with `fig-cap`, `fig-width` and friends. This
-is the largest gap against knitr and jupyter.
+**Figures.** A cell whose output is an SVG document becomes a figure, which
+covers all three gp functions that return SVG: `plothexport`,
+`plothrawexport` and `plotexport`. Inline in HTML, a file in `_files`
+elsewhere, with `fig-cap`, `fig-alt`, `fig-width` and `label` for
+cross-references. `ploth`/`plothraw`/`plotdraw` need a screen device and
+`psploth` writes PostScript, so neither is captured — documented, not a bug.
+
+**Inline code.** `` `{gp} expr` `` in prose is evaluated in document order, so
+it sees the state the cells above it left. Occurrences inside fenced blocks
+are left alone.
+
+**Documentation site.** `docs/` is a Quarto website that exercises the engine
+on every page, deployed to GitHub Pages.
+
+## Next
 
 **v0.2 — caching.** Implement `canFreeze` and Quarto's freeze mechanism so a
 long factorisation is not recomputed on every render. Needs a cache key over
-the concatenated cell sources plus the `pari-gp:` configuration.
-
-**v0.3 — inline code.** Support `` `{gp} expr` `` in prose, which currently does
-nothing.
+the concatenated cell sources plus the `pari-gp:` configuration. This is now
+the largest gap against knitr and jupyter, and the next thing to do.
 
 **v0.3 — better output shaping.** An option for gp's `output` default
 (prettymatrix vs raw), and optional LaTeX output via gp's `\x`/TeX mode so that

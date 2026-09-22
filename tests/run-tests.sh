@@ -71,6 +71,38 @@ run_case config \
 run_case asis \
   present '<h2'                 'output: asis is interpreted as markdown'
 
+run_case inline \
+  present 'is 100000000000000000039'  'inline code is evaluated' \
+  present 'has 21 digits'             'inline code sees the state of earlier cells' \
+  present '`{gp} p`'                  'inline code inside a fenced block is left alone' \
+  present 'still works: 1024'         'substitution resumes after a fenced block'
+
+run_case figures \
+  present '<svg'                'an exported SVG becomes an inline figure' \
+  absent  '&quot;&lt;svg'       'the quotes gp puts around a string are stripped' \
+  absent  '<?xml'               'the XML prolog is not inlined into the page' \
+  present 'role="img"'          'the figure is exposed as an image' \
+  present 'A sine wave'         'fig-alt becomes the accessible name' \
+  present 'href="#fig-zeta"'    'a labelled figure can be cross-referenced' \
+  present 'Figure&nbsp;1'       'a labelled figure is numbered'
+
+# Non-HTML formats get a file on disk instead of an inline SVG.
+if [ -z "$FILTER" ] || [[ "figures" == *"$FILTER"* ]]; then
+  echo "• figures (non-HTML)"
+  rm -rf tests/cases/figures_files
+  if quarto render tests/cases/figures.qmd --to gfm >/tmp/qpg-gfm.log 2>&1; then
+    if [ -f tests/cases/figures_files/figure-gp/fig-zeta.svg ]; then
+      green "  PASS  the figure is written next to the document"; PASS=$((PASS+1))
+    else
+      red   "  FAIL  no SVG file was written"; FAIL=$((FAIL+1))
+    fi
+    check tests/cases/figures.md present '](figures_files/figure-gp/' \
+      'the document references the figure file'
+  else
+    red "  ERROR rendering tests/cases/figures.qmd to gfm"; FAIL=$((FAIL+1))
+  fi
+fi
+
 # The error case must make the render fail.
 if [ -z "$FILTER" ] || [[ "fail-on-error" == *"$FILTER"* ]]; then
   echo "• fail-on-error"

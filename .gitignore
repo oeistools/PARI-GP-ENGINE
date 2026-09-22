@@ -5,6 +5,8 @@
 # Quarto
 /.quarto/
 _site/
+docs/_site/
+docs/.quarto/
 *_files/
 *_cache/
 /examples/*.html

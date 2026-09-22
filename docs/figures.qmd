@@ -1,0 +1,114 @@
+---
+title: "Figures"
+engine: pari-gp
+---
+
+gp has no notion of a "current figure" the way R or matplotlib do. A plot
+reaches the document because you asked gp for it: `plothexport("svg", ...)`
+returns the SVG document itself, and the engine turns any cell whose output is
+an SVG into a figure.
+
+## A first plot
+
+```{gp}
+#| fig-cap: "sin(x) on [-3, 3]"
+#| fig-alt: "A sine wave with two full oscillations"
+plothexport("svg", X = -3, 3, sin(X))
+```
+
+`print(plothexport(...))` works too; both the quoted value gp prints for a
+string and the raw printed form are recognised.
+
+## Cross-references
+
+Give the cell a `label` starting with `fig-` and the figure becomes
+cross-referenceable, as in @fig-zeta.
+
+````markdown
+```{gp}
+#| label: fig-zeta
+#| fig-cap: "Real part of zeta on the critical line"
+plothexport("svg", T = 0, 50, real(zeta(1/2 + I*T)))
+```
+````
+
+```{gp}
+#| label: fig-zeta
+#| fig-cap: "Real part of zeta on the critical line"
+#| fig-alt: "An oscillating curve crossing zero several times"
+plothexport("svg", T = 0, 50, real(zeta(1/2 + I*T)))
+```
+
+## Several curves at once
+
+`plothexport` takes a vector of expressions, and the flag `1` joins the points:
+
+```{gp}
+#| label: fig-bessel
+#| fig-cap: "Bessel functions $J_0$ and $J_1$"
+#| fig-alt: "Two damped oscillating curves"
+plothexport("svg", X = 0.1, 20, [besseljh(0, X), besseljh(1, X)], 1)
+```
+
+## Size
+
+`fig-width` sets the CSS width of an inline SVG; gp's own width and height go
+to `plothsizes`-aware functions, or as the last arguments of `plothexport`.
+
+```{gp}
+#| fig-width: 60%
+#| fig-cap: "The same curve at 60% width"
+plothexport("svg", X = -3, 3, cos(X))
+```
+
+## How it is emitted
+
+For HTML the SVG goes **straight into the page**, so it stays sharp at any zoom
+and there is no file to keep track of. For every other format the SVG is
+written to the document's `_files` directory and referenced as an image, which
+Quarto copies and cleans up as usual.
+
+## Which plotting functions work
+
+The rule is simple: **a cell whose output is an SVG document becomes a
+figure**. Every gp function that returns SVG therefore works, and there are
+three of them:
+
+| Function | Draws |
+|---|---|
+| `plothexport("svg", X = a, b, expr)` | a function of one variable |
+| `plothrawexport("svg", xs, ys)` | a list of points you computed yourself |
+| `plotexport("svg", w)` | a drawing built with `plotinit` / `plotrecth` |
+
+`plothrawexport` is how you plot data rather than a formula:
+
+```{gp}
+#| label: fig-raw
+#| fig-cap: "The first 40 values of $\\pi(n)$"
+#| fig-alt: "A rising step-like sequence of points"
+xs = vector(40, n, n);
+ys = vector(40, n, primepi(n));
+plothrawexport("svg", xs, ys)
+```
+
+And `plotexport` draws a rectangle you composed yourself:
+
+```{gp}
+#| label: fig-rect
+#| fig-cap: "A drawing composed with plotinit and plotrecth"
+#| fig-alt: "A smooth oscillating curve"
+plotinit(0, 480, 300);
+plotrecth(0, X = 0, 10, sin(X) * exp(-X/5));
+plotexport("svg", 0)
+```
+
+## What does not work
+
+`ploth`, `plothraw` and `plotdraw` draw to a screen device, so there is nothing
+for the engine to capture during a render — use their `…export` counterparts
+above.
+
+`psploth` and `psplothraw` write a PostScript file (`pari.ps` by default)
+rather than returning a string. No browser renders PostScript, so the engine
+does not pick these up. If you need PostScript, call them, convert the file
+yourself, and reference the result with ordinary markdown.

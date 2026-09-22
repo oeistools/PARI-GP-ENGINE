@@ -1,0 +1,27 @@
+---
+title: "Figures"
+engine: pari-gp
+format: html
+---
+
+A plot exported as SVG becomes a figure:
+
+```{gp}
+#| fig-cap: "The sine wave"
+#| fig-alt: "A sine wave between -3 and 3"
+plothexport("svg", X = -3, 3, sin(X))
+```
+
+With a label it can be cross-referenced, as in @fig-zeta:
+
+```{gp}
+#| label: fig-zeta
+#| fig-cap: "Real part of zeta on the critical line"
+print(plothexport("svg", T = 0, 40, real(zeta(1/2 + I*T))))
+```
+
+Ordinary output is still a code block:
+
+```{gp}
+6 * 7
+```

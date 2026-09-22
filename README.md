@@ -5,10 +5,13 @@
 [![Latest release](https://img.shields.io/github/v/release/oeistools/PARI-GP-ENGINE?label=release&sort=semver)](https://github.com/oeistools/PARI-GP-ENGINE/releases/latest)
 [![Quarto](https://img.shields.io/badge/quarto-%E2%89%A5%201.9-2596be)](https://quarto.org)
 [![PARI/GP](https://img.shields.io/badge/PARI%2FGP-2.17-8b0000)](https://pari.math.u-bordeaux.fr/)
+[![Pages](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/pages.yml/badge.svg)](https://oeistools.github.io/PARI-GP-ENGINE/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 Run [PARI/GP](https://pari.math.u-bordeaux.fr/) code inside [Quarto](https://quarto.org)
 documents, and have it highlighted properly.
+
+**[Documentation →](https://oeistools.github.io/PARI-GP-ENGINE/)**
 
 This repository provides two things that fit together but can be used apart:
 
@@ -95,6 +98,10 @@ Written as `#|` comments at the top of a cell.
 | `include` | `true` | `false` drops the cell from the output entirely (it still runs). |
 | `classes` | — | Extra CSS classes for the code block. |
 | `filename` | — | Filename label above the code block. |
+| `label` | — | Cell label; a `fig-…` label makes a figure cross-referenceable. |
+| `fig-cap` | — | Figure caption. |
+| `fig-alt` | — | Accessible description of a figure. |
+| `fig-width` | — | CSS width for an inline SVG figure. |
 
 ````markdown
 ```{gp}
@@ -129,6 +136,42 @@ pari-gp:
   error: false
 ---
 ```
+
+### Inline code
+
+`` `{gp} expr` `` in prose is evaluated and replaced by its value, at the point
+where it appears — so it sees whatever the cells above it left behind:
+
+```markdown
+The prime is `{gp} p`, which has `{gp} #Str(p)` digits.
+```
+
+Inline code inside a fenced block is left alone, so a document can show the
+syntax without it being evaluated.
+
+### Figures
+
+A cell whose output is an SVG document becomes a figure. gp returns SVG from
+three functions:
+
+| Function | Draws |
+|---|---|
+| `plothexport("svg", X = a, b, expr)` | a function of one variable |
+| `plothrawexport("svg", xs, ys)` | points you computed yourself |
+| `plotexport("svg", w)` | a drawing built with `plotinit` / `plotrecth` |
+
+````markdown
+```{gp}
+#| label: fig-zeta
+#| fig-cap: "Real part of zeta on the critical line"
+plothexport("svg", T = 0, 50, real(zeta(1/2 + I*T)))
+```
+````
+
+For HTML the SVG goes straight into the page; every other format gets a file in
+the document's `_files` directory, referenced as an image. `ploth`, `plothraw`
+and `plotdraw` draw to a screen device and so produce nothing during a render —
+use the `…export` forms. `psploth` writes PostScript, which is not picked up.
 
 ### Errors
 
@@ -187,7 +230,17 @@ make test       # render the test documents and check the output
 make examples   # render examples/
 make check      # all of the above
 make doctor     # report whether quarto and gp are usable
+make docs       # render the documentation site into docs/_site
+make docs-preview   # serve it with live reload
 ```
+
+### The documentation site
+
+`docs/` is a Quarto website that uses the extension on every page, so a broken
+engine breaks the site build. `docs/_extensions` is a symlink to the
+repository's own `_extensions`, which is how a nested Quarto project finds it.
+[`pages.yml`](.github/workflows/pages.yml) renders it and deploys to GitHub
+Pages on every push to `main` that touches `docs/`, `src/` or `_extensions/`.
 
 The engine is written in TypeScript against the types Quarto ships, and
 compiled with `quarto call build-ts-extension`. The compiled
@@ -237,8 +290,12 @@ inspect them first.
 - Quarto allows **one engine per document**, so a document using `pari-gp`
   cannot also run `{python}` or `{r}` cells. This is a Quarto restriction, not
   one of this extension.
-- No caching or freeze support yet: every render re-runs the whole document.
-- Plotting (`plothraw`, `psploth`, …) is not captured as figures yet.
+- **No caching or freeze support yet**: every render re-runs the whole
+  document, so a long factorisation is recomputed each time. This is the
+  next thing on the [plan](PLAN.md).
+- Only SVG plots are captured. PostScript output (`psploth`) is not.
+- gp's output formatting is whatever gp does; there is no LaTeX/TeX output
+  mode yet, though `prelude` lets you set gp's `output` default by hand.
 
 ## Related work
 

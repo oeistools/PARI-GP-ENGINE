@@ -1,0 +1,89 @@
+---
+title: "Gallery"
+engine: pari-gp
+pari-gp:
+  stacksize: 64M
+  precision: 50
+---
+
+A longer document, to show what the engine looks like in use. Everything here
+ran when the page was built.
+
+## Primes
+
+```{gp}
+p = nextprime(10^40)
+factor(p - 1)
+```
+
+```{gp}
+#| output: asis
+#| echo: false
+printf("`p` has %d decimal digits and %d binary digits.\n", #Str(p), exponent(p) + 1);
+```
+
+## Elliptic curves
+
+The modular curve $X_0(11)$:
+
+```{gp}
+E = ellinit([0, -1, 1, -10, -20]);
+[E.disc, E.j]
+```
+
+Its conductor, analytic rank and the first coefficients of its $L$-series:
+
+```{gp}
+ellglobalred(E)[1]
+ellanalyticrank(E)
+ellan(E, 12)
+```
+
+```{gp}
+#| label: fig-ell
+#| fig-cap: "The upper branch of the real locus of $X_0(11)$"
+#| fig-alt: "A curve rising from zero as x increases"
+\\ y^2 + y = x^3 - x^2 - 10x - 20, solved for the upper y
+up(x) = my(d = 1 + 4*(x^3 - x^2 - 10*x - 20)); if (d < 0, 0, (-1 + sqrt(d))/2);
+plothexport("svg", X = 5.05, 12, up(X))
+```
+
+## Number fields
+
+$\mathbb{Q}(\sqrt[3]{2})$:
+
+```{gp}
+K = bnfinit(x^3 - 2, 1);
+[K.disc, K.no, K.reg]
+```
+
+```{gp}
+K.zk
+K.fu
+```
+
+## High precision
+
+`precision: 50` applies to the whole page:
+
+```{gp}
+Pi
+exp(1)
+zeta(3)
+```
+
+## Sums and series
+
+```{gp}
+sumdiv(2^10 * 3^5, d, d)
+sum(n = 1, 1000, 1/n^2) * 1.0
+Ser(exp(x), x, 8)
+```
+
+## Modular forms
+
+```{gp}
+mf = mfinit([1, 12], 1);
+f = mfbasis(mf)[1];
+mfcoefs(f, 10)
+```

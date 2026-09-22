@@ -131,6 +131,10 @@ interface CellOptions {
   include: boolean;
   classes: string[];
   filename?: string;
+  label?: string;
+  figCap?: string;
+  figAlt?: string;
+  figWidth?: string;
 }
 
 function readCellOptions(
@@ -150,6 +154,10 @@ function readCellOptions(
     include: asBool(o.include, cfg.include),
     classes: asStringArray(o.classes)?.map((c) => c.replace(/^\./, "")) ?? [],
     filename: typeof o.filename === "string" ? o.filename : undefined,
+    label: typeof o.label === "string" ? o.label : undefined,
+    figCap: typeof o["fig-cap"] === "string" ? o["fig-cap"] : undefined,
+    figAlt: typeof o["fig-alt"] === "string" ? o["fig-alt"] : undefined,
+    figWidth: o["fig-width"] !== undefined ? String(o["fig-width"]) : undefined,
   };
 }
 
@@ -329,10 +337,137 @@ function codeBlock(content: string, attrs: string): string {
   return `${f}${attrs}\n${content}\n${f}\n`;
 }
 
+/**
+ * gp has no notion of a "current figure": a plot reaches us because the author
+ * called plothexport("svg", ...) or plotexport("svg", ...), whose value is the
+ * SVG document itself. So a cell produced a figure exactly when its output is
+ * an SVG document.
+ */
+const kSvgStart = /^\s*(<\?xml[^>]*\?>\s*)?(<!DOCTYPE svg[^>]*>\s*)?<svg[\s>]/i;
+
+function isSvg(text: string): boolean {
+  return kSvgStart.test(text);
+}
+
+/**
+ * gp prints the value of a t_STR wrapped in double quotes, so
+ * `plothexport("svg", ...)` arrives as `"<svg ...>"` while
+ * `print(plothexport(...))` arrives raw. Accept both.
+ */
+function unquoteGpString(text: string): string {
+  const t = text.trim();
+  if (t.length >= 2 && t.startsWith('"') && t.endsWith('"')) {
+    return t.slice(1, -1).replace(/\\(["\\])/g, "$1");
+  }
+  return t;
+}
+
+/** Strip the XML prolog: an inline <svg> in an HTML page must not carry one. */
+function svgForInlineUse(svg: string, opts: CellOptions): string {
+  let out = svg.replace(/^\s*<\?xml[^>]*\?>\s*/i, "")
+    .replace(/^\s*<!DOCTYPE[^>]*>\s*/i, "")
+    .trim();
+  if (opts.figAlt) {
+    out = out.replace(/<svg\b/i, `<svg role="img" aria-label="${attrEscape(opts.figAlt)}"`);
+  } else {
+    out = out.replace(/<svg\b/i, '<svg role="img"');
+  }
+  if (opts.figWidth) {
+    out = out.replace(/<svg\b/i, `<svg style="width:${attrEscape(opts.figWidth)};height:auto"`);
+  }
+  return out;
+}
+
+function attrEscape(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+/**
+ * Inline code: `` `{gp} expr` `` in prose. Quarto's own inline syntax, matched
+ * only outside fenced blocks so that a documentation page may show the syntax
+ * without it being evaluated.
+ */
+const kInlineGp = /`\{gp\}([^`]+)`/g;
+
+/** Split markdown into fenced-code and prose runs; only prose is scanned. */
+function proseRuns(md: string): { text: string; code: boolean }[] {
+  const runs: { text: string; code: boolean }[] = [];
+  const fence = /^(\s*)(`{3,}|~{3,}).*$/gm;
+  let at = 0;
+  let open: string | null = null;
+  let m: RegExpExecArray | null;
+  while ((m = fence.exec(md)) !== null) {
+    const marker = m[2];
+    if (open === null) {
+      runs.push({ text: md.slice(at, m.index), code: false });
+      at = m.index;
+      open = marker[0].repeat(marker.length);
+    } else if (marker[0] === open[0] && marker.length >= open.length) {
+      const end = m.index + m[0].length;
+      runs.push({ text: md.slice(at, end), code: true });
+      at = end;
+      open = null;
+    }
+  }
+  runs.push({ text: md.slice(at), code: open !== null });
+  return runs;
+}
+
+function findInlineExpressions(md: string): string[] {
+  const found: string[] = [];
+  for (const run of proseRuns(md)) {
+    if (run.code) continue;
+    for (const m of run.text.matchAll(kInlineGp)) found.push(m[1].trim());
+  }
+  return found;
+}
+
+function substituteInline(md: string, values: string[]): string {
+  let i = 0;
+  return proseRuns(md).map((run) => {
+    if (run.code) return run.text;
+    return run.text.replace(kInlineGp, () => values[i++] ?? "");
+  }).join("");
+}
+
+/**
+ * A figure for an HTML-ish format: the SVG goes straight into the page, so
+ * nothing has to be written to disk and the plot stays sharp at any zoom.
+ *
+ * With a label the figure is emitted as a Quarto figure div so that
+ * cross-references (@fig-...) work; without one it is plain cell output.
+ */
+function emitHtmlFigure(svg: string, opts: CellOptions): string {
+  const raw = "```{=html}\n" + svgForInlineUse(svg, opts) + "\n```\n";
+  if (opts.label) {
+    return `\n::: {#${opts.label}}\n${raw}\n${opts.figCap ?? ""}\n:::\n`;
+  }
+  const caption = opts.figCap
+    ? `\n\n<p class="figure-caption">${attrEscape(opts.figCap)}</p>\n`
+    : "";
+  return `\n::: {.cell-output .cell-output-display}\n${raw}${caption}:::\n`;
+}
+
+/**
+ * A figure for every other format: the SVG is written next to the document, in
+ * the same _files directory Quarto already cleans up, and referenced as an
+ * image.
+ */
+function emitFileFigure(path: string, opts: CellOptions): string {
+  const attrs: string[] = [];
+  if (opts.label) attrs.push(`#${opts.label}`);
+  if (opts.figWidth) attrs.push(`width=${opts.figWidth}`);
+  const attr = attrs.length ? `{${attrs.join(" ")}}` : "";
+  const cap = opts.figCap ?? "";
+  const alt = opts.figAlt ?? cap;
+  return `\n::: {.cell-output .cell-output-display}\n![${cap || alt}](${path})${attr}\n:::\n`;
+}
+
 function emitCell(
   code: string,
   output: string | undefined,
   opts: CellOptions,
+  emitFigure?: (svg: string, opts: CellOptions) => string,
 ): string {
   if (!opts.include) return "";
 
@@ -346,7 +481,10 @@ function emitCell(
 
   const text = output === undefined ? "" : trimOutput(output);
   if (text.length > 0 && opts.output !== false) {
-    if (opts.output === "asis") {
+    const unquoted = unquoteGpString(text);
+    if (emitFigure && isSvg(unquoted)) {
+      parts.push(emitFigure(unquoted, opts));
+    } else if (opts.output === "asis") {
       parts.push("\n" + text + "\n");
     } else {
       const kind = isGpError(text) ? "cell-output-error" : "cell-output-stdout";
@@ -363,6 +501,27 @@ function emitCell(
 // ---------------------------------------------------------------------------
 // Engine
 // ---------------------------------------------------------------------------
+
+/**
+ * Where figures for `input` are written: the `<stem>_files` directory Quarto
+ * already knows how to copy next to the output and clean up afterwards.
+ */
+function figureDir(input: string): {
+  absolute: string;
+  relative: string;
+  supporting: string;
+} {
+  const sep = input.includes("\\") && !input.includes("/") ? "\\" : "/";
+  const at = input.lastIndexOf(sep);
+  const dir = at === -1 ? "." : input.slice(0, at);
+  const base = (at === -1 ? input : input.slice(at + 1)).replace(/\.[^.]+$/, "");
+  const supporting = `${dir}${sep}${base}_files`;
+  return {
+    absolute: `${supporting}${sep}figure-gp`,
+    relative: `${base}_files/figure-gp`,
+    supporting,
+  };
+}
 
 /** Directory holding this engine's files, so we can find pari-gp.xml. */
 function extensionDir(): string {
@@ -392,7 +551,7 @@ const pariGpEngine: ExecutionEngineDiscovery = {
     language.toLowerCase() === kCellLanguage,
 
   canFreeze: false,
-  generatesFigures: false,
+  generatesFigures: true,
 
   launch: (_context: EngineProjectContext): ExecutionEngineInstance => {
     return {
@@ -436,19 +595,60 @@ const pariGpEngine: ExecutionEngineDiscovery = {
           return { gp: true as const, cell, opts };
         });
 
+        // Inline expressions are queued in document order together with the
+        // cells, so that `` `{gp} p` `` in prose sees exactly the state the
+        // cells above it left behind.
+        const inlineCounts = new Map<number, number>();
         const toRun: string[] = [];
-        for (const c of cells) {
-          if (c.gp && c.opts.eval) toRun.push(c.cell.source.value);
-        }
+        cells.forEach((c, i) => {
+          if (c.gp) {
+            if (c.opts.eval) toRun.push(c.cell.source.value);
+            return;
+          }
+          if (c.cell.cell_type === "raw") return; // the YAML front matter
+          const exprs = findInlineExpressions(c.cell.sourceVerbatim.value);
+          if (exprs.length === 0) return;
+          inlineCounts.set(i, exprs.length);
+          for (const e of exprs) toRun.push(`print(${e})`);
+        });
 
         const run = await runGp(toRun, cfg, options.cwd);
+
+        // An SVG goes straight into an HTML page; every other format needs a
+        // file on disk to point an image at.
+        const htmlish = /html|revealjs|epub/i.test(
+          options.format?.pandoc?.to ?? "html",
+        );
+        const figuresDir = figureDir(options.target.input);
+        const supporting: string[] = [];
+        let figureCount = 0;
+
+        const emitFigure = (svg: string, opts: CellOptions): string => {
+          if (htmlish) return emitHtmlFigure(svg, opts);
+          figureCount += 1;
+          const name = `${opts.label ?? `figure-${figureCount}`}.svg`;
+          Deno.mkdirSync(figuresDir.absolute, { recursive: true });
+          Deno.writeTextFileSync(`${figuresDir.absolute}/${name}`, svg);
+          if (!supporting.includes(figuresDir.supporting)) {
+            supporting.push(figuresDir.supporting);
+          }
+          return emitFileFigure(`${figuresDir.relative}/${name}`, opts);
+        };
 
         // Pass 2: rebuild the document.
         const out: string[] = [];
         let runIndex = 0;
-        for (const c of cells) {
+        for (const [i, c] of cells.entries()) {
           if (!c.gp) {
-            out.push(c.cell.sourceVerbatim.value);
+            const n = inlineCounts.get(i) ?? 0;
+            if (n === 0) {
+              out.push(c.cell.sourceVerbatim.value);
+            } else {
+              const values = run.outputs.slice(runIndex, runIndex + n)
+                .map((v) => trimOutput(v).replace(/\s*\n\s*/g, " "));
+              runIndex += n;
+              out.push(substituteInline(c.cell.sourceVerbatim.value, values));
+            }
             continue;
           }
           const code = c.cell.source.value;
@@ -464,7 +664,7 @@ const pariGpEngine: ExecutionEngineDiscovery = {
                 `rendered document instead of stopping.`,
             );
           }
-          out.push(emitCell(code, result, c.opts));
+          out.push(emitCell(code, result, c.opts, emitFigure));
         }
 
         if (run.truncated) {
@@ -478,7 +678,7 @@ const pariGpEngine: ExecutionEngineDiscovery = {
         const result: ExecuteResult = {
           engine: kEngineName,
           markdown: out.join(""),
-          supporting: [],
+          supporting,
           filters: [],
         };
 

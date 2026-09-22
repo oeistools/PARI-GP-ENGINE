@@ -1,0 +1,55 @@
+---
+title: "PARI/GP in Quarto"
+engine: pari-gp
+---
+
+`PARI-GP-ENGINE` lets you put [PARI/GP](https://pari.math.u-bordeaux.fr/) code
+in a Quarto document, run it, and show the results — with the code highlighted
+properly.
+
+Everything on this site is rendered by the extension itself. The block below is
+real code that ran when this page was built:
+
+```{gp}
+p = nextprime(10^40)
+factor(p - 1)
+```
+
+## Install
+
+```bash
+quarto add oeistools/PARI-GP-ENGINE
+```
+
+You need [Quarto](https://quarto.org) 1.9 or newer and the `gp` executable on
+your `PATH`. See [Get started](getting-started.qmd).
+
+## What you get
+
+**Execution.** ` ```{gp} ` cells run in one `gp` session per document, so state
+carries from cell to cell, exactly as it would at the `gp` prompt.
+
+**Highlighting.** A syntax definition covering all 1200 functions of PARI/GP
+2.17, applied automatically — nothing to configure.
+
+**Figures.** Plots exported as SVG become real figures, with captions and
+cross-references. See [Figures](figures.qmd).
+
+**Errors that behave.** A PARI/GP error stops the render and tells you which
+cell, unless you asked for the error to be part of the document.
+
+## A taste
+
+The class number and regulator of $\mathbb{Q}(\sqrt[3]{2})$:
+
+```{gp}
+K = bnfinit(x^3 - 2, 1);
+[K.no, K.reg]
+```
+
+And because the session persists, its fundamental units are still one cell
+away:
+
+```{gp}
+K.fu
+```

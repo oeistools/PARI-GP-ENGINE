@@ -1,0 +1,22 @@
+---
+title: "Inline code"
+engine: pari-gp
+format: html
+---
+
+```{gp}
+#| include: false
+p = nextprime(10^20);
+```
+
+The prime is `{gp} p`, which has `{gp} #Str(p)` digits.
+
+Inline code sees the state at its own position: `{gp} 6*7`.
+
+A fenced block must not be evaluated:
+
+```markdown
+The prime is `{gp} p`.
+```
+
+After the block, substitution still works: `{gp} 2^10`.

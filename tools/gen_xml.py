@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """Generate _extensions/pari-gp/pari-gp.xml (KDE/Skylighting syntax definition)."""
-import re, sys, subprocess, html, datetime, os
+
+import html
+import re
+import subprocess
+import sys
+
+ARG_DEST = 2  # sys.argv index of the output path
 
 CONTROL = """break next return if while until for foreach forcomposite fordiv
 fordivfactored forell forfactored forpart forperm forprime forprimestep
@@ -21,6 +27,7 @@ prompt prompt_cont psfile readline realbitprecision realprecision recover
 secure seriesprecision simplify sopath strictargs strictmatch threadsize
 threadsizemax timer""".split()
 
+
 def harvest(gp="gp"):
     """Ask the installed gp for its function list.
 
@@ -29,20 +36,27 @@ def harvest(gp="gp"):
     of them, which would leave whole categories (elliptic curves, ...) out of
     the keyword list.
     """
-    banner = set("""GP PARI CALCULATOR Version released amd64 arm64 running linux
+    banner = set(
+        """GP PARI CALCULATOR Version released amd64 arm64 running linux
         darwin windows x86 kernel bit compiled gcc clang Ubuntu Debian threading
         engine pthread nbthreads readline disabled enabled extended help
         Copyright The Group is free software covered by the GNU General Public
         License and comes WITHOUT ANY WARRANTY WHATSOEVER Type for how to get
         moral possibly technical support quit Goodbye parisize primelimit
         factorlimit RETURN Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec GMP
-        MPIR version single multi""".split())
+        MPIR version single multi""".split()
+    )
     toks = set()
-    for n in list(range(1, 18)) + ["."]:
+    for n in [*range(1, 18), "."]:
         try:
-            out = subprocess.run(["sh", "-c", "exec %s -f 2>&1" % gp],
-                                 input="?%s\n" % n, capture_output=True,
-                                 text=True, timeout=60).stdout
+            out = subprocess.run(
+                ["sh", "-c", f"exec {gp} -f 2>&1"],
+                input=f"?{n}\n",
+                capture_output=True,
+                text=True,
+                timeout=60,
+                check=False,
+            ).stdout
         except subprocess.TimeoutExpired:
             continue
         for line in out.splitlines():
@@ -52,21 +66,27 @@ def harvest(gp="gp"):
     toks -= banner
     return sorted(t for t in toks if len(t) > 1 or t == "I")
 
+
 def lst(name, items):
-    body = "\n".join("      <item>%s</item>" % html.escape(i) for i in items)
-    return '    <list name="%s">\n%s\n    </list>' % (name, body)
+    body = "\n".join(f"      <item>{html.escape(i)}</item>" for i in items)
+    return f'    <list name="{name}">\n{body}\n    </list>'
+
 
 def main():
     gp = sys.argv[1] if len(sys.argv) > 1 else "gp"
     fns = harvest(gp)
     known = set(CONTROL) | set(CONSTANTS) | set(DEFAULTS)
     fns = [f for f in fns if f not in known]
-    ver = subprocess.run(["sh", "-c", "%s --version 2>&1" % gp], capture_output=True,
-                         text=True).stdout
+    ver = subprocess.run(
+        ["sh", "-c", f"{gp} --version 2>&1"],
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout
     m = re.search(r"Version\s+([0-9.]+)", ver)
     pariver = m.group(1) if m else "unknown"
 
-    xml = f'''<?xml version="1.0" encoding="UTF-8"?>
+    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
 <!--
   PARI/GP syntax definition for Skylighting / Pandoc / Quarto / KDE Kate.
@@ -166,11 +186,12 @@ def main():
     <keywords casesensitive="1" additionalDeliminator="."/>
   </general>
 </language>
-'''
-    dest = sys.argv[2] if len(sys.argv) > 2 else "pari-gp.xml"
+"""
+    dest = sys.argv[2] if len(sys.argv) > ARG_DEST else "pari-gp.xml"
     with open(dest, "w") as fh:
         fh.write(xml)
-    print("wrote %s  (%d functions, PARI/GP %s)" % (dest, len(fns), pariver))
+    print(f"wrote {dest}  ({len(fns)} functions, PARI/GP {pariver})")
+
 
 if __name__ == "__main__":
     main()

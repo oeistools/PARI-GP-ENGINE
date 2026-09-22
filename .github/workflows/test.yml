@@ -37,6 +37,14 @@ jobs:
       - name: Check prerequisites
         run: ./install.sh --check
 
+      - name: Lint the Python tooling
+        uses: astral-sh/ruff-action@v3
+
+      - name: Check Python formatting
+        uses: astral-sh/ruff-action@v3
+        with:
+          args: "format --check"
+
       - name: Build the engine from source
         run: make build
 

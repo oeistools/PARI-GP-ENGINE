@@ -1,0 +1,38 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "PARI-GP-ENGINE"
+  description: "Run PARI/GP inside Quarto documents"
+  site-url: "https://oeistools.github.io/PARI-GP-ENGINE/"
+  repo-url: "https://github.com/oeistools/PARI-GP-ENGINE"
+  repo-actions: [source, issue]
+  page-navigation: true
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: getting-started.qmd
+        text: Get started
+      - href: options.qmd
+        text: Options
+      - href: figures.qmd
+        text: Figures
+      - href: highlighting.qmd
+        text: Highlighting
+      - href: gallery.qmd
+        text: Gallery
+    right:
+      - icon: github
+        href: https://github.com/oeistools/PARI-GP-ENGINE
+        aria-label: GitHub
+  page-footer:
+    center: "MIT licensed. PARI/GP is GPL software by the PARI Group."
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-copy: true
+    anchor-sections: true

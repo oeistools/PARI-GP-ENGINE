@@ -11,6 +11,7 @@
 GP      ?= gp
 QUARTO  ?= quarto
 PYTHON  ?= python3
+RUFF    ?= ruff
 
 EXT_DIR := _extensions/pari-gp
 ENGINE  := $(EXT_DIR)/pari-gp.js
@@ -20,7 +21,7 @@ VERSION := $(shell cat VERSION)
 
 .DEFAULT_GOAL := help
 .PHONY: help build syntax test examples check doctor clean distclean version bump-version \
-        package release-check tag
+        package release-check tag docs docs-preview lint fmt
 
 help: ## Show this help
 	@echo "PARI-GP-ENGINE $(VERSION)"
@@ -44,13 +45,28 @@ test: build ## Render the test documents and check their output
 examples: build ## Render every document under examples/
 	$(QUARTO) render examples
 
+docs: build ## Render the documentation site into docs/_site
+	$(QUARTO) render docs
+
+docs-preview: build ## Serve the documentation site with live reload
+	$(QUARTO) preview docs
+
+lint: ## Lint and format-check the Python tooling with ruff
+	$(RUFF) check tools/
+	$(RUFF) format --check tools/
+
+fmt: ## Reformat the Python tooling with ruff
+	$(RUFF) format tools/
+	$(RUFF) check --fix tools/
+
 doctor: ## Report whether Quarto, PARI/GP and the engine are usable
 	@./install.sh --check
 
-check: doctor build ## Run every check
+check: doctor lint build ## Run every check: lint, syntax, tests and examples
 	@$(PYTHON) -c "import xml.dom.minidom as m; m.parse('$(SYNTAX)')" \
 	  && echo "$(SYNTAX): well-formed"
 	@$(MAKE) --no-print-directory test
+	@$(MAKE) --no-print-directory examples
 
 package: build ## Build the release archives into dist/
 	@rm -rf dist && mkdir -p dist
@@ -79,9 +95,10 @@ tag: release-check ## Tag the current commit and push it, which triggers the rel
 	 echo "pushed v$$v — the release workflow takes it from here"
 
 clean: ## Remove rendered documents and caches
-	rm -rf .quarto _site
+	rm -rf .quarto _site docs/_site docs/.quarto
 	rm -f  examples/*.html tests/cases/*.html tests/expect-fail/*.html
-	rm -rf examples/*_files tests/cases/*_files tests/expect-fail/*_files
+	rm -f  tests/cases/*.md
+	rm -rf examples/*_files tests/cases/*_files tests/expect-fail/*_files docs/*_files
 	rm -rf dist
 
 distclean: clean ## Also remove the compiled engine

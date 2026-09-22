@@ -1,0 +1,34 @@
+# The only Python in this repository is tools/gen_xml.py, which generates the
+# PARI/GP syntax definition. This file exists to configure ruff for it.
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+src = ["tools"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # import sorting
+    "UP",       # pyupgrade
+    "B",        # bugbear
+    "SIM",      # simplify
+    "PL",       # pylint
+    "RUF",      # ruff-specific
+]
+ignore = [
+    # The PARI/GP keyword lists are written as prose blocks and split on
+    # whitespace. Spelling them as list literals would turn five readable
+    # paragraphs into five screens of quoted strings.
+    "SIM905",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ruff.lint.per-file-ignores]
+# gen_xml.py is largely a template of the XML it emits. Several <RegExpr> lines
+# are longer than the limit and cannot be wrapped without changing the output
+# or making the template unreadable.
+"tools/gen_xml.py" = ["E501"]

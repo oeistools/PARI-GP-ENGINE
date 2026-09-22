@@ -8,6 +8,18 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **Figures**: a cell whose output is an SVG document becomes a figure. This
+  covers every gp function that returns SVG — `plothexport`,
+  `plothrawexport` and `plotexport` — with `fig-cap`, `fig-alt`, `fig-width`
+  and `label` for cross-references. HTML formats get the SVG inline; every
+  other format gets a file in the document's `_files` directory.
+- **Inline code**: `` `{gp} expr` `` in prose is evaluated in document order
+  and replaced by its value. Occurrences inside fenced blocks are left alone.
+- **Documentation site** under `docs/`, a Quarto website that uses the engine
+  on every page, deployed to GitHub Pages by `pages.yml`.
+- `make docs` and `make docs-preview`.
+- **ruff** for the Python tooling: configuration in `pyproject.toml`,
+  `make lint` and `make fmt` targets, and lint plus format checks in CI.
 - Status badges in the README (CI, release, latest version, Quarto and PARI/GP
   versions, licence).
 - `release.yml` workflow: pushing a `v*` tag re-runs the whole test suite,
@@ -18,6 +30,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- `make check` now runs `make examples` as well, which the README already
+  claimed it did.
 - Removed a duplicated `# PARI-GP-ENGINE` heading at the end of the README.
 
 ## [0.1.0] — 2026-09-22

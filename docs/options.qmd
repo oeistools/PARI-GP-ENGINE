@@ -1,0 +1,123 @@
+---
+title: "Options"
+engine: pari-gp
+---
+
+## Cell options
+
+Written as `#|` comments at the top of a cell.
+
+| Option | Default | Effect |
+|---|---|---|
+| `eval` | `true` | Run the cell. `false` shows the code without running it. |
+| `echo` | `true` | Show the source. |
+| `output` | `true` | Show what gp printed. `asis` inserts it as raw markdown. |
+| `error` | `false` | `true` renders gp errors into the document; `false` stops the render. |
+| `include` | `true` | `false` drops the cell from the output entirely — it still runs. |
+| `classes` | — | Extra CSS classes for the code block. |
+| `filename` | — | Filename label above the code block. |
+| `label` | — | Cell label; `fig-…` makes a figure cross-referenceable. |
+| `fig-cap` | — | Figure caption. |
+| `fig-alt` | — | Accessible description of a figure. |
+| `fig-width` | — | CSS width for an inline SVG figure. |
+
+### `echo: false`
+
+Run it, show only the result:
+
+```{gp}
+#| echo: false
+print("The code that produced this line is hidden.")
+```
+
+### `eval: false`
+
+Show it without running it — useful for code that is slow or needs data you do
+not ship:
+
+```{gp}
+#| eval: false
+\\ This never runs.
+forprime(p = 2, 10^12, if (p % 4 == 1, print(p)))
+```
+
+### `output: asis`
+
+The output is inserted as markdown rather than wrapped in a code block, so gp
+can generate document structure:
+
+```{gp}
+#| echo: false
+#| output: asis
+for (n = 3, 5, printf("- %d! = %d\n", n, n!))
+```
+
+### `include: false`
+
+The cell runs — so later cells can use what it defines — but nothing appears:
+
+```{gp}
+#| include: false
+secret = 1729;
+```
+
+```{gp}
+secret
+```
+
+## Document options
+
+Everything under `pari-gp:` in the front matter, all optional:
+
+```yaml
+---
+engine: pari-gp
+pari-gp:
+  path: gp              # gp executable, if it is not on PATH
+  args: []              # extra arguments passed to gp
+  stacksize: 32M        # parisize
+  primelimit: 500000    # primelimit
+  precision: 50         # realprecision, in decimal digits
+  bitprecision: 128     # realbitprecision (alternative to precision)
+  seriesprecision: 16   # seriesprecision
+  timeout: 300          # seconds before the render gives up
+  highlight: true       # inject the syntax definition automatically
+  prelude: |            # gp code run once, before the first cell
+    default(output, 0);
+    read("mylib.gp");
+  echo: true            # defaults for every cell in the document
+  output: true
+  error: false
+---
+```
+
+`echo`, `output`, `error`, `eval` and `include` set the default for every cell;
+a cell option overrides it.
+
+### `prelude`
+
+Useful for loading a library of your own, or changing how gp formats results.
+This page sets nothing, so matrices print in gp's usual style:
+
+```{gp}
+factor(360)
+```
+
+## Errors
+
+By default a PARI/GP error stops the render, naming the cell and the message.
+When the error is the point, ask for it:
+
+```{gp}
+#| error: true
+1/0
+```
+
+The session survives either way — gp keeps reading, so later cells still run:
+
+```{gp}
+6 * 7
+```
+
+gp's `*** Warning:` lines are warnings, not errors: they are shown, but never
+stop a render.

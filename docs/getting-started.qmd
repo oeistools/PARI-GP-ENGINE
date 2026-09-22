@@ -1,0 +1,95 @@
+---
+title: "Get started"
+engine: pari-gp
+---
+
+## Requirements
+
+**Quarto 1.9 or newer.** Engine extensions do not exist in earlier versions.
+
+**PARI/GP.** The `gp` executable must be on your `PATH`:
+
+| System | Command |
+|---|---|
+| Debian, Ubuntu | `sudo apt install pari-gp` |
+| macOS | `brew install pari` |
+| Fedora | `sudo dnf install pari-gp` |
+| conda | `conda install -c conda-forge pari` |
+| Windows | [self-installing binary](https://pari.math.u-bordeaux.fr/download.html), or WSL |
+
+## Install the extension
+
+In the directory of your Quarto project:
+
+```bash
+quarto add oeistools/PARI-GP-ENGINE
+```
+
+This puts the extension in `_extensions/`, which you should commit.
+
+If you would rather be told what is missing before anything is installed, clone
+the repository and run the installer:
+
+```bash
+./install.sh --check    # report only
+./install.sh            # check, then install
+```
+
+On Windows use `./install.ps1` instead.
+
+## Your first document
+
+```{.markdown filename="mersenne.qmd"}
+---
+title: "Mersenne factors"
+engine: pari-gp
+format: html
+---
+
+```{gp}
+M = 2^101 - 1
+factor(M)
+```
+```
+
+Then:
+
+```bash
+quarto render mersenne.qmd
+```
+
+Two things matter in that front matter: `engine: pari-gp` selects this engine,
+and the cells are marked ` ```{gp} `.
+
+## One session per document
+
+Every cell runs in the same `gp` session, in order. Anything a cell defines is
+still there afterwards:
+
+```{gp}
+E = ellinit([0, -1, 1, -10, -20]);   \\ the modular curve X_0(11)
+```
+
+```{gp}
+[E.disc, ellglobalred(E)[1]]
+```
+
+gp's own conventions apply unchanged: a statement ending in `;` computes
+without printing, one without `;` prints its value.
+
+## When something is wrong
+
+`make doctor`, or `./install.sh --check`, reports whether Quarto and `gp` are
+usable.
+
+If `gp` is installed somewhere unusual, name it in the document:
+
+```yaml
+---
+engine: pari-gp
+pari-gp:
+  path: /opt/pari/bin/gp
+---
+```
+
+See [Options](options.qmd) for everything else you can set.

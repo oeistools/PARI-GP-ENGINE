@@ -43,6 +43,13 @@ mistakes. `make test` renders the documents in `tests/` and greps the HTML.
 Both must pass before a change is finished. Add a case in `tests/cases/` for
 any behaviour worth keeping.
 
+## The documentation site
+
+`docs/` is a separate Quarto project (it has its own `_quarto.yml`), and a
+nested project does **not** find the parent's `_extensions` — hence the
+`docs/_extensions` symlink. Removing it makes every docs page fall back to
+jupyter and fail. `make docs` renders it; `pages.yml` deploys it.
+
 ## Releasing
 
 `make bump-version V=x.y.z` updates `VERSION`, `_extension.yml` and
@@ -79,6 +86,11 @@ function count drops well below ~1200, this is why.
 warning. Treating every `***` line as an error made documents fail to render
 because the stack grew — see `isGpError` in `src/pari-gp.ts`.
 
+**A gp string prints with quotes around it.** `plothexport(...)` at top level
+arrives as `"<svg ...>"`, not `<svg ...>`; `unquoteGpString` handles both that
+and the `print()`ed form. This is why figure detection missed everything the
+first time.
+
 **Sentinels.** Cell output is separated by `print("<<<quarto-pari-gp:...>>>")`
 lines with a per-run nonce. A missing sentinel means gp died early or a cell
 left a brace, bracket or string open; the engine reports that rather than
@@ -88,6 +100,15 @@ producing silently wrong output.
 directory that is not inside the project root makes Quarto fall back to
 jupyter and fail with a confusing "Jupyter is not available" message. That is a
 path problem, not an engine problem.
+
+## Python tooling
+
+`tools/gen_xml.py` is the only Python here. `make lint` runs ruff's linter and
+format check; `make fmt` fixes what it can. `SIM905` is switched off globally
+and `E501` for that one file — both with the reason written in
+`pyproject.toml`, because the keyword lists are prose blocks and the XML
+template lines cannot be wrapped. After touching the generator, run `make
+syntax` and confirm the XML is unchanged.
 
 ## Style
 

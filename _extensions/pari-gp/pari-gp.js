@@ -74,7 +74,11 @@ function readCellOptions(raw, cfg) {
     error: asBool(o.error, cfg.error),
     include: asBool(o.include, cfg.include),
     classes: asStringArray(o.classes)?.map((c) => c.replace(/^\./, "")) ?? [],
-    filename: typeof o.filename === "string" ? o.filename : void 0
+    filename: typeof o.filename === "string" ? o.filename : void 0,
+    label: typeof o.label === "string" ? o.label : void 0,
+    figCap: typeof o["fig-cap"] === "string" ? o["fig-cap"] : void 0,
+    figAlt: typeof o["fig-alt"] === "string" ? o["fig-alt"] : void 0,
+    figWidth: o["fig-width"] !== void 0 ? String(o["fig-width"]) : void 0
   };
 }
 var kMissingGp = (path) => `PARI/GP executable "${path}" was not found.
@@ -224,7 +228,112 @@ ${content}
 ${f}
 `;
 }
-function emitCell(code, output, opts) {
+var kSvgStart = /^\s*(<\?xml[^>]*\?>\s*)?(<!DOCTYPE svg[^>]*>\s*)?<svg[\s>]/i;
+function isSvg(text) {
+  return kSvgStart.test(text);
+}
+function unquoteGpString(text) {
+  const t = text.trim();
+  if (t.length >= 2 && t.startsWith('"') && t.endsWith('"')) {
+    return t.slice(1, -1).replace(/\\(["\\])/g, "$1");
+  }
+  return t;
+}
+function svgForInlineUse(svg, opts) {
+  let out = svg.replace(/^\s*<\?xml[^>]*\?>\s*/i, "").replace(/^\s*<!DOCTYPE[^>]*>\s*/i, "").trim();
+  if (opts.figAlt) {
+    out = out.replace(/<svg\b/i, `<svg role="img" aria-label="${attrEscape(opts.figAlt)}"`);
+  } else {
+    out = out.replace(/<svg\b/i, '<svg role="img"');
+  }
+  if (opts.figWidth) {
+    out = out.replace(/<svg\b/i, `<svg style="width:${attrEscape(opts.figWidth)};height:auto"`);
+  }
+  return out;
+}
+function attrEscape(s) {
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+var kInlineGp = /`\{gp\}([^`]+)`/g;
+function proseRuns(md) {
+  const runs = [];
+  const fence2 = /^(\s*)(`{3,}|~{3,}).*$/gm;
+  let at = 0;
+  let open = null;
+  let m;
+  while ((m = fence2.exec(md)) !== null) {
+    const marker = m[2];
+    if (open === null) {
+      runs.push({
+        text: md.slice(at, m.index),
+        code: false
+      });
+      at = m.index;
+      open = marker[0].repeat(marker.length);
+    } else if (marker[0] === open[0] && marker.length >= open.length) {
+      const end = m.index + m[0].length;
+      runs.push({
+        text: md.slice(at, end),
+        code: true
+      });
+      at = end;
+      open = null;
+    }
+  }
+  runs.push({
+    text: md.slice(at),
+    code: open !== null
+  });
+  return runs;
+}
+function findInlineExpressions(md) {
+  const found = [];
+  for (const run of proseRuns(md)) {
+    if (run.code) continue;
+    for (const m of run.text.matchAll(kInlineGp)) found.push(m[1].trim());
+  }
+  return found;
+}
+function substituteInline(md, values) {
+  let i = 0;
+  return proseRuns(md).map((run) => {
+    if (run.code) return run.text;
+    return run.text.replace(kInlineGp, () => values[i++] ?? "");
+  }).join("");
+}
+function emitHtmlFigure(svg, opts) {
+  const raw = "```{=html}\n" + svgForInlineUse(svg, opts) + "\n```\n";
+  if (opts.label) {
+    return `
+::: {#${opts.label}}
+${raw}
+${opts.figCap ?? ""}
+:::
+`;
+  }
+  const caption = opts.figCap ? `
+
+<p class="figure-caption">${attrEscape(opts.figCap)}</p>
+` : "";
+  return `
+::: {.cell-output .cell-output-display}
+${raw}${caption}:::
+`;
+}
+function emitFileFigure(path, opts) {
+  const attrs = [];
+  if (opts.label) attrs.push(`#${opts.label}`);
+  if (opts.figWidth) attrs.push(`width=${opts.figWidth}`);
+  const attr = attrs.length ? `{${attrs.join(" ")}}` : "";
+  const cap = opts.figCap ?? "";
+  const alt = opts.figAlt ?? cap;
+  return `
+::: {.cell-output .cell-output-display}
+![${cap || alt}](${path})${attr}
+:::
+`;
+}
+function emitCell(code, output, opts, emitFigure) {
   if (!opts.include) return "";
   const parts = [];
   if (opts.echo) {
@@ -238,7 +347,10 @@ function emitCell(code, output, opts) {
   }
   const text = output === void 0 ? "" : trimOutput(output);
   if (text.length > 0 && opts.output !== false) {
-    if (opts.output === "asis") {
+    const unquoted = unquoteGpString(text);
+    if (emitFigure && isSvg(unquoted)) {
+      parts.push(emitFigure(unquoted, opts));
+    } else if (opts.output === "asis") {
       parts.push("\n" + text + "\n");
     } else {
       const kind = isGpError(text) ? "cell-output-error" : "cell-output-stdout";
@@ -255,6 +367,18 @@ function emitCell(code, output, opts) {
 ${parts.join("")}:::
 
 `;
+}
+function figureDir(input) {
+  const sep = input.includes("\\") && !input.includes("/") ? "\\" : "/";
+  const at = input.lastIndexOf(sep);
+  const dir = at === -1 ? "." : input.slice(0, at);
+  const base = (at === -1 ? input : input.slice(at + 1)).replace(/\.[^.]+$/, "");
+  const supporting = `${dir}${sep}${base}_files`;
+  return {
+    absolute: `${supporting}${sep}figure-gp`,
+    relative: `${base}_files/figure-gp`,
+    supporting
+  };
 }
 function extensionDir() {
   const url = new URL(".", import.meta.url);
@@ -279,7 +403,7 @@ var pariGpEngine = {
   claimsFile: (_file, _ext) => false,
   claimsLanguage: (language, _firstClass) => language.toLowerCase() === kCellLanguage,
   canFreeze: false,
-  generatesFigures: false,
+  generatesFigures: true,
   launch: (_context) => {
     return {
       name: kEngineName,
@@ -312,16 +436,49 @@ var pariGpEngine = {
             opts
           };
         });
+        const inlineCounts = /* @__PURE__ */ new Map();
         const toRun = [];
-        for (const c of cells) {
-          if (c.gp && c.opts.eval) toRun.push(c.cell.source.value);
-        }
+        cells.forEach((c, i) => {
+          if (c.gp) {
+            if (c.opts.eval) toRun.push(c.cell.source.value);
+            return;
+          }
+          if (c.cell.cell_type === "raw") return;
+          const exprs = findInlineExpressions(c.cell.sourceVerbatim.value);
+          if (exprs.length === 0) return;
+          inlineCounts.set(i, exprs.length);
+          for (const e of exprs) toRun.push(`print(${e})`);
+        });
         const run = await runGp(toRun, cfg, options.cwd);
+        const htmlish = /html|revealjs|epub/i.test(options.format?.pandoc?.to ?? "html");
+        const figuresDir = figureDir(options.target.input);
+        const supporting = [];
+        let figureCount = 0;
+        const emitFigure = (svg, opts) => {
+          if (htmlish) return emitHtmlFigure(svg, opts);
+          figureCount += 1;
+          const name = `${opts.label ?? `figure-${figureCount}`}.svg`;
+          Deno.mkdirSync(figuresDir.absolute, {
+            recursive: true
+          });
+          Deno.writeTextFileSync(`${figuresDir.absolute}/${name}`, svg);
+          if (!supporting.includes(figuresDir.supporting)) {
+            supporting.push(figuresDir.supporting);
+          }
+          return emitFileFigure(`${figuresDir.relative}/${name}`, opts);
+        };
         const out = [];
         let runIndex = 0;
-        for (const c of cells) {
+        for (const [i, c] of cells.entries()) {
           if (!c.gp) {
-            out.push(c.cell.sourceVerbatim.value);
+            const n = inlineCounts.get(i) ?? 0;
+            if (n === 0) {
+              out.push(c.cell.sourceVerbatim.value);
+            } else {
+              const values = run.outputs.slice(runIndex, runIndex + n).map((v) => trimOutput(v).replace(/\s*\n\s*/g, " "));
+              runIndex += n;
+              out.push(substituteInline(c.cell.sourceVerbatim.value, values));
+            }
             continue;
           }
           const code = c.cell.source.value;
@@ -333,7 +490,7 @@ ${trimOutput(result2)}
 
 Set "#| error: true" on the cell (or "error: true" under "pari-gp:" in the front matter) to show the error in the rendered document instead of stopping.`);
           }
-          out.push(emitCell(code, result2, c.opts));
+          out.push(emitCell(code, result2, c.opts, emitFigure));
         }
         if (run.truncated) {
           throw new Error("PARI/GP exited before the end of the document. A cell most likely left a construct open (an unbalanced brace, bracket or string), or called quit().");
@@ -341,7 +498,7 @@ Set "#| error: true" on the cell (or "error: true" under "pari-gp:" in the front
         const result = {
           engine: kEngineName,
           markdown: out.join(""),
-          supporting: [],
+          supporting,
           filters: []
         };
         if (cfg.highlight) {

@@ -1,0 +1,61 @@
+---
+title: "Highlighting"
+engine: pari-gp
+---
+
+The extension ships a KDE/Skylighting syntax definition for PARI/GP. When you
+use the engine it is applied automatically — there is nothing to configure.
+
+```{gp}
+#| eval: false
+\\ Comments, both kinds                    /* like this */
+p = nextprime(10^100);                     \\ functions and numbers
+E = ellinit([0, 1]); E.disc                \\ member access
+if (isprime(p), print("yes"), print("no"));\\ control flow
+default(realprecision, 50)                 \\ default names
+x = 1.5e10 + 0x1f;                         \\ floats and hex
+\p 38                                      \\ metacommands
+```
+
+It covers comments, strings, decimal, hexadecimal and floating-point numbers,
+gp metacommands (`\p`, `\q`, `?fn`), member access, `default()` names, control
+flow, and every built-in function of PARI/GP 2.17.
+
+## Without the engine
+
+The definition is a plain file, so it works in any Quarto document, and in
+Pandoc on its own. Tag the block `pari-gp` and point Quarto at the file:
+
+````markdown
+---
+format:
+  html:
+    syntax-definitions:
+      - _extensions/oeistools/pari-gp/pari-gp.xml
+---
+
+```pari-gp
+forprime(p = 2, 100, print(p))
+```
+````
+
+With Pandoc directly:
+
+```bash
+pandoc --syntax-definition=pari-gp.xml -f markdown -t html doc.md
+```
+
+## It is generated, not hand-written
+
+Keeping 1200 function names correct by hand across PARI releases is not
+realistic, so `tools/gen_xml.py` asks the installed `gp` for its own function
+list and writes the definition from that:
+
+```bash
+make syntax
+```
+
+Each help category is queried in a separate `gp` invocation, because piping
+several `?n` requests into one session makes gp silently drop some of them —
+which is how whole categories such as elliptic curves went missing the first
+time.
