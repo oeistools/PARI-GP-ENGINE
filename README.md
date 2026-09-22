@@ -17,7 +17,7 @@ This repository provides two things that fit together but can be used apart:
 | Part | What it is |
 | --- | --- |
 | **Engine** | A Quarto [engine extension](https://quarto.org/docs/extensions/engine.html) that executes ` ```{gp} ` cells with the `gp` interpreter and puts the results in the rendered document. |
-| **Highlighting** | A KDE/Skylighting syntax definition (`pari-gp.xml`) covering all 1200 functions of PARI/GP 2.17, applied automatically — no `syntax-definitions:` wiring needed. |
+| **Highlighting** | A KDE/Skylighting syntax definition (`pari-gp.xml`) covering the PARI/GP 2.17 function set, applied automatically — no `syntax-definitions:` wiring needed. |
 
 ```{gp}
 p = nextprime(10^30)

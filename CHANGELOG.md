@@ -43,7 +43,7 @@ First release.
 
 #### Highlighting
 
-- A KDE/Skylighting syntax definition covering the 1200 functions of PARI/GP
+- A KDE/Skylighting syntax definition covering the function set of PARI/GP
   2.17, plus comments, strings, numbers, metacommands, member access and
   `default()` names. The engine passes it to Pandoc itself, so a document
   needs no `syntax-definitions:` entry.

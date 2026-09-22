@@ -47,7 +47,7 @@ pandoc --syntax-definition=pari-gp.xml -f markdown -t html doc.md
 
 ## It is generated, not hand-written
 
-Keeping 1200 function names correct by hand across PARI releases is not
+Keeping every function name correct by hand across PARI releases is not
 realistic, so `tools/gen_xml.py` asks the installed `gp` for its own function
 list and writes the definition from that:
 

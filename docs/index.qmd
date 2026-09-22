@@ -29,7 +29,7 @@ your `PATH`. See [Get started](getting-started.qmd).
 **Execution.** ` ```{gp} ` cells run in one `gp` session per document, so state
 carries from cell to cell, exactly as it would at the `gp` prompt.
 
-**Highlighting.** A syntax definition covering all 1200 functions of PARI/GP
+**Highlighting.** A syntax definition covering the full function set of PARI/GP
 2.17, applied automatically — nothing to configure.
 
 **Figures.** Plots exported as SVG become real figures, with captions and

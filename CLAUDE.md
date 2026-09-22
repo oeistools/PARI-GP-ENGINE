@@ -61,6 +61,30 @@ Release notes are written to a **file** and passed with `gh release create
 --notes-file`, never interpolated into the command line: the changelog contains
 backticks, which a shell would run as command substitution.
 
+## Where things stand
+
+**v0.1.0 is published** (2026-09-22): <https://github.com/oeistools/PARI-GP-ENGINE/releases/tag/v0.1.0>.
+It was verified end to end, not just by a green workflow — the released
+extension was installed with `quarto add` into an empty directory and used to
+render a document with execution, inline code, highlighting and a figure.
+
+The docs site is live at <https://oeistools.github.io/PARI-GP-ENGINE/>.
+
+`PLAN.md` holds the triaged backlog for what comes next; start there.
+
+## The draft/ folder
+
+`draft/` is gitignored local material, now all Markdown (the HTML originals
+were converted and deleted on 2026-09-22):
+
+- `Create PARI GP Highlight.md` — the conversation this project grew out of.
+- `Mejoras del repositorio.md` — a review of the repository. Useful, but it
+  predates the v0.1.0 release, so its two red-priority items (publish a
+  release; check `quarto add` against it) are already done. Its triaged
+  contents live in `PLAN.md` under "Next".
+- `pari-gp-functions/` — 86 pages of the PARI/GP user manual as Markdown.
+  Handy for looking up what a function does without leaving the repo.
+
 ## Requirements in this environment
 
 `quarto` (>= 1.9) and `gp` are both installed here, so changes can and should
