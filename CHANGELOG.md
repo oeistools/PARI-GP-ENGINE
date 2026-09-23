@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- The clean-install check now really does run against every release. Its
+  `on: release` trigger could never fire, because `release.yml` creates the
+  release with `GITHUB_TOKEN` and GitHub does not start workflow runs from
+  `GITHUB_TOKEN` events; the check is now a `verify-install` job inside
+  `release.yml`, where it runs on the tag just published. The weekly run,
+  which is the one that catches a release going stale, was never affected.
+
 ## [0.2.0] — 2026-09-23
 
 The last release: see `PLAN.md` for what was finished and what was left.

@@ -297,8 +297,9 @@ a document that exercises execution, inline code, highlighting and a figure. By
 default it installs the release named in `VERSION`, and `REF=--local`
 installs the working tree instead, which is what CI does on every push.
 [`clean-install.yml`](.github/workflows/clean-install.yml) runs the published
-form on every release and once a week, so a release broken by a newer Quarto
-or PARI/GP is noticed here rather than by whoever installs next.
+form once a week, so a release broken by a newer Quarto or PARI/GP is noticed
+here rather than by whoever installs next, and `release.yml` runs it against
+each tag as it is published.
 
 CI also runs the whole suite against PARI/GP 2.13, 2.15 and 2.17 from
 conda-forge, regenerating the syntax definition on each so that both halves of
@@ -340,8 +341,10 @@ start-up code keeps gp's own chatter out of the first cell.
   runs the suite against PARI/GP 2.13.3, 2.15.5 and 2.17.3 from conda-forge,
   regenerating `pari-gp.xml` from each.
 - [`clean-install.yml`](.github/workflows/clean-install.yml) installs the
-  *published* release with `quarto add` and renders with it, on every release
-  and once a week.
+  *published* release with `quarto add` and renders with it, once a week —
+  which is what would notice a release broken by a newer Quarto or PARI/GP
+  long after it was cut. `release.yml` does the same check on the tag it has
+  just published.
 - [`release.yml`](.github/workflows/release.yml) runs when a `v*` tag is
   pushed: it rebuilds the engine, runs the tests and the examples, checks that
   the tag agrees with `VERSION`, `_extension.yml` and `CITATION.cff`, builds

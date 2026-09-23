@@ -125,9 +125,17 @@ gp builds rather than only by a green workflow.
 (`make clean-install`) runs `quarto add` in an empty directory *outside* the
 repository and renders a document using execution, inline code, highlighting
 and a figure. `REF=--local` installs the working tree instead, which is what
-`test.yml` runs on every push; `clean-install.yml` runs the published form on
-every release and weekly, so a release broken by a newer Quarto or PARI/GP is
-caught. Verified against the published v0.1.0 on Linux and macOS.
+`test.yml` runs on every push; `release.yml` runs it against the tag it has
+just published, and `clean-install.yml` runs it weekly, which is what would
+catch a release broken by a newer Quarto or PARI/GP months later. Verified
+against the published v0.1.0 and v0.2.0 on Linux and macOS.
+
+One wrinkle worth knowing: a release published by `release.yml` is created
+with `GITHUB_TOKEN`, and GitHub does not start workflow runs from
+`GITHUB_TOKEN` events, so an `on: release` trigger never fires for it. That
+is why the post-release check lives in `release.yml` itself. GitHub also
+disables scheduled workflows after 60 days without repository activity, so
+on a finished project the weekly run eventually stops until someone pushes.
 
 **The syntax definition is asserted on.** `tests/cases/highlight.qmd` checks
 that `\p`, `?factor`, `E.disc`, `0xFF`, `1.23e-10`, `\\` and `/* */`

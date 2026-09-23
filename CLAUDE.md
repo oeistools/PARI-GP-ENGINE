@@ -92,7 +92,16 @@ up. Read it before proposing work here, because "not done" mostly means
 
 Maintenance that still happens by itself: the weekly `clean-install` job,
 which is what would catch a newer Quarto or PARI/GP breaking the published
-release.
+release. GitHub disables scheduled workflows after 60 days without repository
+activity, so on a finished project that eventually stops — re-enable it from
+the Actions tab, or push something.
+
+**An `on: release` trigger does not fire for our own releases.** `release.yml`
+publishes with `GITHUB_TOKEN`, and GitHub does not start workflow runs from
+`GITHUB_TOKEN` events. That is why the post-release install check is the
+`verify-install` job inside `release.yml` rather than a trigger in
+`clean-install.yml`. It cost a v0.2.0 that went out unverified by CI (it was
+verified by hand instead) before anyone noticed.
 
 ## The draft/ folder
 

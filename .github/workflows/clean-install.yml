@@ -2,9 +2,18 @@ name: clean-install
 
 # Install the published extension the way a user does and render with it.
 # The test suite runs inside the repository, where `_extensions` and
-# `_quarto.yml` are already in place; this job is the only one that proves the
-# *release* is installable. It also runs weekly, so that a release broken by a
-# newer Quarto or PARI/GP is noticed here rather than by whoever installs next.
+# `_quarto.yml` are already in place; this proves the *release* is installable.
+#
+# The weekly run is the point of this workflow: it is what notices a release
+# broken by a newer Quarto or PARI/GP, months after the release itself.
+# (GitHub disables scheduled workflows after 60 days without repository
+# activity, so on a finished project this eventually stops until someone
+# pushes or re-enables it.)
+#
+# The `release: published` trigger below only fires for a release published by
+# a person. Ours are created by release.yml with GITHUB_TOKEN, and GitHub does
+# not start workflow runs from GITHUB_TOKEN events — that case is covered by
+# the verify-install job in release.yml instead.
 
 on:
   release:

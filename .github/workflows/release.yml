@@ -93,3 +93,33 @@ jobs:
             --notes-file release-notes.md \
             --verify-tag \
             dist/*.tar.gz dist/*.zip
+
+  # The release is created with GITHUB_TOKEN, and GitHub does not start new
+  # workflow runs from GITHUB_TOKEN events — so the `release: published`
+  # trigger in clean-install.yml never fires for our own releases. Installing
+  # the freshly published tag here is what actually proves it is installable.
+  verify-install:
+    needs: release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install PARI/GP (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y pari-gp
+
+      - name: Install PARI/GP (macOS)
+        if: runner.os == 'macOS'
+        run: brew install pari
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.9.38
+
+      - name: Install the published release and render with it
+        run: ./tests/clean-install.sh "${{ github.event.inputs.tag || github.ref_name }}"
