@@ -6,6 +6,30 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **A clean-install test.** `tests/clean-install.sh` runs `quarto add` in an
+  empty directory outside the repository and renders a document that uses
+  execution, inline code, highlighting and a figure — the check that was done
+  by hand for 0.1.0. `make clean-install` runs it against the release named in
+  `VERSION`, `REF=--local` against the working tree. CI runs the local form on
+  every push, and the published form on every release and once a week.
+- **Assertions on the syntax definition.** The suite now checks that the
+  generated `pari-gp.xml` still contains `nextprime`, `factor`, `bnfinit`,
+  `ellinit`, `mfinit` and `lfun` and has not shrunk, and a new
+  `tests/cases/highlight.qmd` checks that `\p`, `?factor`, `E.disc`, `0xFF`,
+  `1.23e-10`, `\\` comments, `/* */` comments and string escapes all still
+  highlight.
+- **A PARI/GP version matrix in CI.** The suite also runs against PARI/GP
+  2.13.3, 2.15.5 and 2.17.3 from conda-forge, regenerating the syntax
+  definition from each. (conda-forge has no 2.16.)
+
+### Fixed
+
+- `tests/cases/*.md`, the gfm output of the figure test, is no longer reported
+  as an untracked file, and `/_freeze/` is listed once in `.gitignore` rather
+  than twice.
+
 ## [0.1.0] — 2026-09-22
 
 First release.

@@ -77,6 +77,38 @@ run_case inline \
   present '`{gp} p`'                  'inline code inside a fenced block is left alone' \
   present 'still works: 1024'         'substitution resumes after a fenced block'
 
+# Highlighting is a component of its own: pari-gp.xml is useful without the
+# engine, and gen_xml.py depends on what gp prints, which has silently dropped
+# whole categories before. Assert on both the generated list and the render.
+run_case highlight \
+  present '<span class="co">\\ a line comment'    'a \\ comment is highlighted' \
+  present '<span class="co">/* a block comment'  'a /* */ comment is highlighted' \
+  present '<span class="pp">\p</span>'            'a metacommand is highlighted' \
+  present '<span class="pp">?factor</span>'      'a help query is highlighted' \
+  present '<span class="at">.disc</span>'        'member access is highlighted' \
+  present '<span class="bn">0xFF</span>'         'a hex literal is highlighted' \
+  present '<span class="fl">1.23e-10</span>'     'a float literal is highlighted' \
+  present '<span class="cf">for</span>'          'a control-flow keyword is highlighted' \
+  present '<span class="fu">nextprime</span>'    'a function name is highlighted' \
+  present '<span class="sc">\n</span>'            'a string escape is highlighted'
+
+# The keyword list itself: one name from each corner of the function set, so
+# that a category dropped by gen_xml.py is noticed here rather than by a user.
+if [ -z "$FILTER" ] || [[ "syntax" == *"$FILTER"* ]]; then
+  echo "• syntax"
+  xml=_extensions/pari-gp/pari-gp.xml
+  for fn in nextprime factor bnfinit ellinit mfinit lfun; do
+    check "$xml" present "<item>$fn</item>" "the function list contains $fn"
+  done
+  n=$(grep -c '<item>' "$xml")
+  if [ "$n" -ge 1000 ]; then
+    green "  PASS  the function list has $n entries"; PASS=$((PASS+1))
+  else
+    red   "  FAIL  the function list has only $n entries; a category was dropped"
+    FAIL=$((FAIL+1))
+  fi
+fi
+
 run_case figures \
   present '<svg'                'an exported SVG becomes an inline figure' \
   absent  '&quot;&lt;svg'       'the quotes gp puts around a string are stripped' \

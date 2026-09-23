@@ -62,3 +62,61 @@ jobs:
 
       - name: Render the examples
         run: make examples
+
+      # The suite above runs inside the repository, where `_extensions` and
+      # `_quarto.yml` are already in place. This installs the working tree the
+      # way `quarto add` installs a release, so a file missing from the
+      # extension directory fails here rather than after the tag is pushed.
+      - name: Install this tree as an extension and render with it
+        run: ./tests/clean-install.sh --local
+
+  # The job above uses the distribution's PARI/GP and the committed XML. This
+  # one regenerates the syntax definition from an older gp and runs everything
+  # against it, because both halves of the project depend on what gp prints:
+  # gen_xml.py parses its help output, and the engine parses `*** Warning:`.
+  # conda-forge has no 2.16 at all, so the usable steps are 2.13 / 2.15 / 2.17.
+  pari-versions:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        pari: ["2.13.3", "2.15.5", "2.17.3"]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: pari
+          create-args: pari=${{ matrix.pari }}
+          condarc: |
+            channels: [conda-forge]
+          init-shell: bash
+          cache-environment: true
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.9.38
+
+      - name: Report versions
+        shell: bash -el {0}
+        run: gp --version 2>&1 | head -3
+
+      - name: Build the engine
+        shell: bash -el {0}
+        run: make build
+
+      # Regenerated, not the committed copy: a category that this gp prints
+      # differently would otherwise go unnoticed until someone ran `make
+      # syntax` on that version. The tests then assert on what came out.
+      - name: Regenerate the syntax definition from this gp
+        shell: bash -el {0}
+        run: make syntax
+
+      - name: Run the tests
+        shell: bash -el {0}
+        run: make test
+
+      - name: Render the examples
+        shell: bash -el {0}
+        run: make examples

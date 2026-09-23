@@ -105,24 +105,33 @@ empty directory was verified by hand. Its suggestion to renumber the first
 release 0.2.0 was considered and declined: nothing had been published, so
 there was no earlier release to differentiate from.
 
-### Robustness (do first)
+### Robustness — done (2026-09-23)
 
-**Automate the clean-install test.** `quarto add oeistools/PARI-GP-ENGINE@vX`
-into an empty directory, render a document that exercises execution, inline
-code, highlighting and a figure, and assert on the output. This was done by
-hand for 0.1.0; it should be a job so it cannot silently rot.
+All three items are in and verified against a real install and real gp
+builds, not only by a green workflow.
 
-**Assert on the generated syntax definition.** `tools/gen_xml.py` depends on
-what `gp` prints, which has already bitten us once (whole categories silently
-missing). Add a test that the XML contains representative functions —
-`nextprime`, `factor`, `bnfinit`, `ellinit`, `mfinit`, `lfun` — and that the
-special constructs still highlight: `\p`, `?factor`, `E.disc`, `0xFF`,
-`1.23e-10`, `\\` and `/* */` comments.
+**The clean-install test is automated.** `tests/clean-install.sh`
+(`make clean-install`) runs `quarto add` in an empty directory *outside* the
+repository and renders a document using execution, inline code, highlighting
+and a figure. `REF=--local` installs the working tree instead, which is what
+`test.yml` runs on every push; `clean-install.yml` runs the published form on
+every release and weekly, so a release broken by a newer Quarto or PARI/GP is
+caught. Verified by running it against the published v0.1.0.
 
-**A PARI/GP version matrix in CI.** The review proposed 2.15 / 2.16 / 2.17.
-Note that conda-forge has **no 2.16** — the usable linux-64 versions are
-2.13.3, 2.15.5 and 2.17.3, so the matrix should be those. This matters most
-for `gen_xml.py` and for the `*** Warning:` parsing.
+**The syntax definition is asserted on.** `tests/cases/highlight.qmd` checks
+that `\p`, `?factor`, `E.disc`, `0xFF`, `1.23e-10`, `\\` and `/* */`
+comments and string escapes still highlight, and a `syntax` section checks the
+generated XML for `nextprime`, `factor`, `bnfinit`, `ellinit`, `mfinit` and
+`lfun` plus a floor on the number of entries, which is what a silently dropped
+category would breach.
+
+**The PARI/GP matrix is in CI.** `pari-versions` in `test.yml` runs
+`make syntax && make test && make examples` against 2.13.3, 2.15.5 and 2.17.3
+from conda-forge — the definition is regenerated from each gp rather than
+using the committed copy. conda-forge has **no 2.16**; the full linux-64 list
+is 2.9.x, 2.11.x, 2.13.2/3, 2.15.2–5 and 2.17.1–3. All three pass: 2.13.3
+yields 1169 functions and 2.15.5 yields 1185, against 1323 for 2.17.3, and the
+whole suite is green on each.
 
 ### Presentation
 
@@ -130,8 +139,11 @@ for `gen_xml.py` and for the `*** Warning:` parsing.
 explanation, and add a visible statement that there are two independent
 components: the engine (`engine: pari-gp`) and the syntax definition
 (`pari-gp.xml`), which is useful on its own for highlighting without
-execution. A short compatibility card (Quarto >= 1.9, PARI/GP 2.17+, MIT)
-would help too.
+execution. A short compatibility card (Quarto >= 1.9, PARI/GP 2.13+, MIT)
+would help too. The badge and `Requirements` already say 2.13 — the CI matrix
+established that the engine, the generator and the tests all work from 2.13.3
+on — so the card only has to collect what is already stated. `docs/index.qmd`
+and `docs/highlighting.qmd` still say 2.17 and should follow.
 
 **More examples.** `examples/` currently has two documents. A numbered series
 — factorisation, primes, elliptic curves, number fields, zeta, plots — would

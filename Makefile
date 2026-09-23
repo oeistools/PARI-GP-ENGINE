@@ -4,6 +4,7 @@
 #   make build     compile src/pari-gp.ts to _extensions/pari-gp/pari-gp.js
 #   make syntax    regenerate pari-gp.xml from the installed gp
 #   make test      render the test documents and check their output
+#   make clean-install  install the published extension and render with it
 #   make examples  render everything under examples/
 #   make check     doctor + build + syntax check + test
 #   make clean     remove rendered output
@@ -21,6 +22,7 @@ VERSION := $(shell cat VERSION)
 
 .DEFAULT_GOAL := help
 .PHONY: help build syntax test examples check doctor clean distclean version bump-version \
+        clean-install \
         package release-check tag docs docs-preview lint fmt
 
 help: ## Show this help
@@ -41,6 +43,9 @@ syntax: ## Regenerate the syntax definition from the installed PARI/GP
 
 test: build ## Render the test documents and check their output
 	./tests/run-tests.sh
+
+clean-install: ## Install the published extension into an empty directory and render with it
+	./tests/clean-install.sh $(if $(REF),$(REF),)
 
 examples: build ## Render every document under examples/
 	$(QUARTO) render examples

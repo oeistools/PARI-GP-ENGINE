@@ -1,10 +1,11 @@
 # PARI-GP-ENGINE
 
 [![CI](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/test.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/test.yml)
+[![Clean install](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/clean-install.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/clean-install.yml)
 [![Release](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/release.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/releases/latest)
-[![Quarto](https://img.shields.io/badge/quarto-%E2%89%A5%201.9-2596be)](https://quarto.org)
-[![PARI/GP](https://img.shields.io/badge/PARI%2FGP-2.17-8b0000)](https://pari.math.u-bordeaux.fr/)
 [![Pages](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/pages.yml/badge.svg)](https://oeistools.github.io/PARI-GP-ENGINE/)
+[![Quarto](https://img.shields.io/badge/quarto-%E2%89%A5%201.9-2596be)](https://quarto.org)
+[![PARI/GP](https://img.shields.io/badge/PARI%2FGP-%E2%89%A5%202.13-8b0000)](https://pari.math.u-bordeaux.fr/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 Run [PARI/GP](https://pari.math.u-bordeaux.fr/) code inside [Quarto](https://quarto.org)
@@ -27,7 +28,11 @@ factor(p - 1)
 ## Requirements
 
 - **Quarto ≥ 1.9** — engine extensions do not exist in earlier versions.
-- **PARI/GP** — the `gp` executable must be on your `PATH` (or named explicitly, see below).
+- **PARI/GP ≥ 2.13** — the `gp` executable must be on your `PATH` (or named
+  explicitly, see below). CI tests 2.13.3, 2.15.5 and 2.17.3; the shipped
+  `pari-gp.xml` lists the 2.17 function set, so on an older gp a handful of
+  names it does not have are highlighted as functions anyway. Nothing else
+  differs, and `make syntax` regenerates the list for whatever gp you have.
 
 ## Installing
 
@@ -244,10 +249,32 @@ make syntax     # regenerate pari-gp.xml from the installed gp
 make test       # render the test documents and check the output
 make examples   # render examples/
 make check      # all of the above
+make clean-install  # install the published release into an empty directory
 make doctor     # report whether quarto and gp are usable
 make docs       # render the documentation site into docs/_site
 make docs-preview   # serve it with live reload
 ```
+
+### Tests
+
+`make test` renders everything under `tests/` and greps the output. It covers
+execution, session state, cell options, errors, figures, inline code, freezing
+and highlighting, and it asserts on the generated `pari-gp.xml` itself, because
+`gen_xml.py` depends on what `gp` prints and has silently dropped whole
+categories before.
+
+`make clean-install` is separate, and is the only check that does not use the
+repository: it runs `quarto add` in an empty directory outside it, then renders
+a document that exercises execution, inline code, highlighting and a figure. By
+default it installs the release named in `VERSION`, and `REF=--local`
+installs the working tree instead, which is what CI does on every push.
+[`clean-install.yml`](.github/workflows/clean-install.yml) runs the published
+form on every release and once a week, so a release broken by a newer Quarto
+or PARI/GP is noticed here rather than by whoever installs next.
+
+CI also runs the whole suite against PARI/GP 2.13, 2.15 and 2.17 from
+conda-forge, regenerating the syntax definition on each so that both halves of
+the project are checked against the gp they claim to support.
 
 ### The documentation site
 
@@ -277,16 +304,23 @@ start-up code keeps gp's own chatter out of the first cell.
 
 ### Continuous integration
 
-Two GitHub Actions workflows:
-
 - [`test.yml`](.github/workflows/test.yml) runs on every push and pull request,
   on Linux and macOS: it installs PARI/GP and Quarto, checks the prerequisites,
   rebuilds the engine from TypeScript and **fails if the committed
-  `pari-gp.js` is out of date**, then runs the tests and renders the examples.
+  `pari-gp.js` is out of date**, then runs the tests, renders the examples and
+  installs the working tree as an extension. A second job in the same workflow
+  runs the suite against PARI/GP 2.13.3, 2.15.5 and 2.17.3 from conda-forge,
+  regenerating `pari-gp.xml` from each.
+- [`clean-install.yml`](.github/workflows/clean-install.yml) installs the
+  *published* release with `quarto add` and renders with it, on every release
+  and once a week.
 - [`release.yml`](.github/workflows/release.yml) runs when a `v*` tag is
-  pushed: it re-runs all of the above, checks that the tag agrees with
-  `VERSION`, `_extension.yml` and `CITATION.cff`, builds the archives and
-  publishes a GitHub release with that version's changelog section.
+  pushed: it rebuilds the engine, runs the tests and the examples, checks that
+  the tag agrees with `VERSION`, `_extension.yml` and `CITATION.cff`, builds
+  the archives and publishes a GitHub release with that version's changelog
+  section.
+- [`pages.yml`](.github/workflows/pages.yml) renders `docs/` and deploys it,
+  as described above.
 
 ### Releasing
 

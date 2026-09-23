@@ -1,0 +1,29 @@
+---
+title: "Syntax highlighting"
+engine: pari-gp
+format: html
+---
+
+Every construct below is highlighted by `pari-gp.xml`, which is generated from
+the installed gp. The block is not executed: highlighting is a separate
+component from execution, and this case tests only the former.
+
+```gp
+\\ a line comment
+/* a block comment
+   spanning two lines */
+\p 38
+?factor
+E = ellinit([0, -1, 1, 0, 0]);
+E.disc
+mask = 0xFF;
+eps = 1.23e-10;
+for (n = 1, 10, print(nextprime(n)));
+"a string with an \n escape"
+```
+
+One executed cell, so that the document still exercises the engine:
+
+```{gp}
+bnfinit(x^2 + 1).no
+```

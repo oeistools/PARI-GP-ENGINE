@@ -1,0 +1,55 @@
+name: clean-install
+
+# Install the published extension the way a user does and render with it.
+# The test suite runs inside the repository, where `_extensions` and
+# `_quarto.yml` are already in place; this job is the only one that proves the
+# *release* is installable. It also runs weekly, so that a release broken by a
+# newer Quarto or PARI/GP is noticed here rather than by whoever installs next.
+
+on:
+  release:
+    types: [published]
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Release to install (e.g. v0.1.0), or --local for this tree"
+        required: false
+        default: ""
+
+jobs:
+  clean-install:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install PARI/GP (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y pari-gp
+
+      - name: Install PARI/GP (macOS)
+        if: runner.os == 'macOS'
+        run: brew install pari
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.9.38
+
+      - name: Report versions
+        run: |
+          quarto --version
+          gp --version 2>&1 | head -3
+
+      # On a release event the tag is what was just published; otherwise the
+      # input, and failing that VERSION, which on main is the current release.
+      - name: Install the extension and render with it
+        run: |
+          ref='${{ github.event.inputs.ref }}'
+          [ -n "$ref" ] || ref='${{ github.event.release.tag_name }}'
+          ./tests/clean-install.sh ${ref:+"$ref"}

@@ -43,6 +43,13 @@ mistakes. `make test` renders the documents in `tests/` and greps the HTML.
 Both must pass before a change is finished. Add a case in `tests/cases/` for
 any behaviour worth keeping.
 
+`make clean-install` is the separate one: it runs `quarto add` in an empty
+directory **outside** the repository, so nothing in the working tree can make
+a broken release look installable. `REF=--local` installs the working tree,
+`REF=v0.1.0` a published release, and the default is whatever `VERSION` says.
+Run it when anything about packaging changes — the extension directory,
+`_extension.yml`, `package`, or the release workflow.
+
 ## The documentation site
 
 `docs/` is a separate Quarto project (it has its own `_quarto.yml`), and a
@@ -69,6 +76,13 @@ extension was installed with `quarto add` into an empty directory and used to
 render a document with execution, inline code, highlighting and a figure.
 
 The docs site is live at <https://oeistools.github.io/PARI-GP-ENGINE/>.
+
+Since then (unreleased, 2026-09-23) the three robustness items from
+`PLAN.md` are done: the clean-install check is a script and a workflow, the
+generated XML and the highlighting of `\p`, `?factor`, `E.disc`, hex and float
+literals and comments are asserted on, and CI runs the suite against PARI/GP
+2.13.3, 2.15.5 and 2.17.3 from conda-forge. All three were verified locally
+against real conda-forge gp builds, not only written into a workflow.
 
 `PLAN.md` holds the triaged backlog for what comes next; start there.
 
@@ -124,6 +138,11 @@ path-related must be computed from `options.cwd`.
 lines with a per-run nonce. A missing sentinel means gp died early or a cell
 left a brace, bracket or string open; the engine reports that rather than
 producing silently wrong output.
+
+**conda-forge has no PARI/GP 2.16.** The linux-64 versions are 2.9.x,
+2.11.x, 2.13.2/3, 2.15.2–5 and 2.17.1–3, which is why the CI matrix is
+2.13.3 / 2.15.5 / 2.17.3. The matrix regenerates `pari-gp.xml` from each gp
+rather than using the committed copy: the committed one comes from 2.17.
 
 **Test documents live under a Quarto project.** Rendering a `.qmd` from a
 directory that is not inside the project root makes Quarto fall back to
