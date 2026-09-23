@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-09-23
+
+A CI-only release. Nothing that `quarto add` installs has changed since
+0.2.0: the engine, the syntax definition and the manifest are byte for byte
+the same apart from the version number.
+
 ### Fixed
 
 - The clean-install check now really does run against every release. Its
@@ -124,6 +130,7 @@ First release.
   committed `pari-gp.js` matches its TypeScript source. A `v*` tag builds the
   release archives and publishes the release.
 
-[Unreleased]: https://github.com/oeistools/PARI-GP-ENGINE/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/oeistools/PARI-GP-ENGINE/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/oeistools/PARI-GP-ENGINE/releases/tag/v0.2.1
 [0.2.0]: https://github.com/oeistools/PARI-GP-ENGINE/releases/tag/v0.2.0
 [0.1.0]: https://github.com/oeistools/PARI-GP-ENGINE/releases/tag/v0.1.0

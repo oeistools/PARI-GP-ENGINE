@@ -49,7 +49,7 @@ any behaviour worth keeping.
 `make clean-install` is the separate one: it runs `quarto add` in an empty
 directory **outside** the repository, so nothing in the working tree can make
 a broken release look installable. `REF=--local` installs the working tree,
-`REF=v0.2.0` a published release, and the default is whatever `VERSION` says.
+`REF=v0.2.1` a published release, and the default is whatever `VERSION` says.
 Run it when anything about packaging changes — the extension directory,
 `_extension.yml`, `package`, or the release workflow.
 
@@ -76,8 +76,9 @@ backticks, which a shell would run as command substitution.
 
 ## Where things stand
 
-**The project is finished.** v0.2.0 (2026-09-23) is the last planned release;
-v0.1.0 came the day before. Both were verified end to end rather than by a
+**The project is finished.** v0.2.1 (2026-09-23) is the last release — a
+CI-only follow-up to v0.2.0 the same day, which was itself the day after
+v0.1.0. Both were verified end to end rather than by a
 green workflow alone — the released extension is installed with `quarto add`
 into an empty directory and used to render a document with execution, inline
 code, highlighting and a figure, on Linux and macOS, by

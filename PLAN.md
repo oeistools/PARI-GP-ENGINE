@@ -5,9 +5,11 @@ not do. The point of this file is that a decision made once should not have
 to be re-argued — and now that the project is finished, that the next reader
 can tell quickly what is here and what is not.
 
-## Status — finished at v0.2.0, 2026-09-23
+## Status — finished at v0.2.1, 2026-09-23
 
-**This project is complete.** The goal it set itself was to make PARI/GP a
+**This project is complete.** v0.2.0 is the feature release and v0.2.1 a
+CI-only follow-up; nothing that `quarto add` installs differs between them.
+The goal the project set itself was to make PARI/GP a
 first-class language in Quarto: executable code cells, correct highlighting,
 and an install that is one command. That is done, released, and verified by
 installing the published release and rendering with it, on Linux and macOS,
