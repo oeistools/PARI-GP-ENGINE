@@ -1,6 +1,8 @@
 # PARI-GP-ENGINE
 
-![PARI-GP-ENGINE: a Quarto engine for PARI/GP](assets/logo.png)
+<p align="center">
+  <img src="assets/logo.png" alt="PARI-GP-ENGINE: a Quarto engine for PARI/GP" width="220">
+</p>
 
 [![CI](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/test.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/test.yml)
 [![Clean install](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/clean-install.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/clean-install.yml)

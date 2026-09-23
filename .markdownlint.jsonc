@@ -12,6 +12,11 @@
   // under the *same* parent are a mistake.
   "MD024": { "siblings_only": true },
 
+  // MD033 inline-html: Markdown cannot centre or size an image, and the logo
+  // at the top of README.md needs both. Only these two elements, and only
+  // GitHub-safe attributes.
+  "MD033": { "allowed_elements": ["p", "img"] },
+
   // MD060 table-column-style: one space of padding around every cell,
   // delimiter rows included.
   "MD060": { "style": "compact" }
