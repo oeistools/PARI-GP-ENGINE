@@ -39,7 +39,8 @@ covers all three gp functions that return SVG: `plothexport`,
 `plothrawexport` and `plotexport`. Inline in HTML, a file in `_files`
 elsewhere, with `fig-cap`, `fig-alt`, `fig-width` and `label` for
 cross-references. `ploth`/`plothraw`/`plotdraw` need a screen device and
-`psploth` writes PostScript, so neither is captured — documented, not a bug.
+`psploth` writes PostScript, so none of the four is captured — documented,
+not a bug.
 
 **Inline code.** `` `{gp} expr` `` in prose is evaluated in document order, so
 it sees the state the cells above it left. Occurrences inside fenced blocks
