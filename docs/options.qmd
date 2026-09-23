@@ -3,23 +3,41 @@ title: "Options"
 engine: pari-gp
 ---
 
+Every option the engine understands, in one table. **Cell** options are `#|`
+comments at the top of a cell; **document** options go under `pari-gp:` in the
+front matter. The five marked *both* are set document-wide and overridden per
+cell.
+
+| Option | Scope | Default | Effect |
+| --- | --- | --- | --- |
+| `eval` | both | `true` | Run the cell. `false` shows the code without running it. |
+| `echo` | both | `true` | Show the source. |
+| `output` | both | `true` | Show what gp printed. `asis` inserts it as raw markdown. |
+| `error` | both | `false` | `true` renders gp errors into the document; `false` stops the render. |
+| `include` | both | `true` | `false` drops the cell from the output entirely — it still runs. |
+| `classes` | cell | — | Extra CSS classes for the code block. |
+| `filename` | cell | — | Filename label above the code block. |
+| `label` | cell | — | Cell label; `fig-…` makes a figure cross-referenceable. |
+| `fig-cap` | cell | — | Figure caption. |
+| `fig-alt` | cell | — | Accessible description of a figure. |
+| `fig-width` | cell | — | CSS width for an inline SVG figure. |
+| `path` | document | `gp` | The gp executable, if it is not on `PATH`. |
+| `args` | document | `[]` | Extra arguments passed to gp, after `-q -f`. |
+| `stacksize` | document | gp's own | `parisize`, as gp writes it: `32M`, `1G`. |
+| `primelimit` | document | gp's own | `primelimit`, the precomputed prime table. |
+| `precision` | document | gp's own | `realprecision`, in decimal digits. |
+| `bitprecision` | document | gp's own | `realbitprecision`, instead of `precision`. |
+| `seriesprecision` | document | gp's own | `seriesprecision`. |
+| `timeout` | document | `300` | Seconds before the render gives up on gp. |
+| `prelude` | document | — | gp code run once, before the first cell. |
+| `highlight` | document | `true` | Inject the syntax definition into Pandoc. |
+
+"gp's own" means the engine sets nothing and you get whatever the interpreter
+defaults to, which is what `gp` would do at the prompt.
+
 ## Cell options
 
 Written as `#|` comments at the top of a cell.
-
-| Option | Default | Effect |
-| --- | --- | --- |
-| `eval` | `true` | Run the cell. `false` shows the code without running it. |
-| `echo` | `true` | Show the source. |
-| `output` | `true` | Show what gp printed. `asis` inserts it as raw markdown. |
-| `error` | `false` | `true` renders gp errors into the document; `false` stops the render. |
-| `include` | `true` | `false` drops the cell from the output entirely — it still runs. |
-| `classes` | — | Extra CSS classes for the code block. |
-| `filename` | — | Filename label above the code block. |
-| `label` | — | Cell label; `fig-…` makes a figure cross-referenceable. |
-| `fig-cap` | — | Figure caption. |
-| `fig-alt` | — | Accessible description of a figure. |
-| `fig-width` | — | CSS width for an inline SVG figure. |
 
 ### `echo: false`
 

@@ -1,0 +1,82 @@
+---
+title: "3. Elliptic curves"
+engine: pari-gp
+format: html
+---
+
+`ellinit` takes the five coefficients of a long Weierstrass equation,
+$y^2 + a_1xy + a_3y = x^3 + a_2x^2 + a_4x + a_6$, and precomputes everything
+else once. Here is $X_0(11)$, the smallest conductor there is:
+
+```{gp}
+E = ellinit([0, -1, 1, -10, -20]);
+[E.disc, E.j]
+```
+
+The conductor confirms it:
+
+```{gp}
+ellglobalred(E)[1]
+```
+
+## Rank and torsion
+
+```{gp}
+ellanalyticrank(E)
+```
+
+Rank zero, so the group of rational points is finite — and it is cyclic of
+order 5:
+
+```{gp}
+elltors(E)
+```
+
+## Counting points mod p
+
+`ellap` returns $a_p = p + 1 - \#E(\mathbb{F}_p)$, the coefficient that
+carries all the arithmetic:
+
+```{gp}
+[[p, ellap(E, p)] | p <- primes(8)]
+```
+
+The same numbers are the coefficients of the $L$-series, which is the content
+of modularity:
+
+```{gp}
+ellan(E, 15)
+```
+
+Hasse's bound says $|a_p| \le 2\sqrt{p}$; for $p = 10^6+3$ that leaves a
+window of about `{gp} round(4*sqrt(1000003))` values, and gp finds the right
+one immediately:
+
+```{gp}
+ellap(E, 1000003)
+```
+
+## A curve with points on it
+
+Rank one instead, so there is an infinite supply of rational points:
+
+```{gp}
+C = ellinit([0, 0, 1, -1, 0]);
+[ellglobalred(C)[1], ellanalyticrank(C)]
+```
+
+Start from $(0,0)$ and add it to itself; the coordinates grow fast, which is
+what the canonical height measures:
+
+```{gp}
+P = [0, 0];
+[ellmul(C, P, 2), ellmul(C, P, 3)]
+```
+
+```{gp}
+[ellheight(C, P), ellheight(C, ellmul(C, P, 3))]
+```
+
+The second is nine times the first, because the height is a quadratic form.
+
+Next: [number fields](04-number-fields.qmd).

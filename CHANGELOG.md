@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-09-23
+
+The last release: see `PLAN.md` for what was finished and what was left.
+
 ### Added
 
 - **A clean-install test.** `tests/clean-install.sh` runs `quarto add` in an
@@ -22,10 +26,31 @@ All notable changes to this project are documented here. The format follows
   highlight.
 - **A PARI/GP version matrix in CI.** The suite also runs against PARI/GP
   2.13.3, 2.15.5 and 2.17.3 from conda-forge, regenerating the syntax
-  definition from each. (conda-forge has no 2.16.)
+  definition from each. (conda-forge has no 2.16.) This establishes 2.13 as
+  the supported floor, where the README previously implied 2.17.
+- **A numbered series of examples.** `examples/01-factorisation` through
+  `06-plots`: factorisation over four different rings, primes, `X_0(11)`,
+  class groups and prime splitting, zeta and `lfun`, and every kind of figure
+  the engine captures. `hello.qmd` and the longer `number-theory.qmd` tour
+  stay where they were.
+- **A compatibility card** at the top of the README — Quarto, PARI/GP,
+  platforms, install line, licence — and a single compact options table
+  (option, scope, default) opening `docs/options.qmd`.
+- **A logo**, in `assets/`: the full mark in the README and on the docs home
+  page, a cropped icon in the navbar and as the favicon. `docs/assets` is a
+  symlink to `../assets`, as `docs/_extensions` already was.
+- `make bump-version` now sets `date-released` in `CITATION.cff`, and
+  `make release-check` fails when it disagrees with the date on the
+  changelog section — it was previously neither written nor checked.
 
 ### Fixed
 
+- The PARI/GP version badge, `Requirements`, `docs/index.qmd` and
+  `docs/highlighting.qmd` said 2.17 where the engine in fact works from 2.13.
+  The 2.17 that remains is the function set the shipped `pari-gp.xml` lists,
+  which is a different claim and is now stated as one.
+- `mamba-org/setup-micromamba` moved to v3, clearing the last Node 20
+  deprecation warning in CI.
 - `tests/cases/*.md`, the gfm output of the figure test, is no longer reported
   as an untracked file, and `/_freeze/` is listed once in `.gitignore` rather
   than twice.
@@ -90,5 +115,6 @@ First release.
   committed `pari-gp.js` matches its TypeScript source. A `v*` tag builds the
   release archives and publishes the release.
 
-[Unreleased]: https://github.com/oeistools/PARI-GP-ENGINE/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/oeistools/PARI-GP-ENGINE/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/oeistools/PARI-GP-ENGINE/releases/tag/v0.2.0
 [0.1.0]: https://github.com/oeistools/PARI-GP-ENGINE/releases/tag/v0.1.0

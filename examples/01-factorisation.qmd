@@ -1,0 +1,70 @@
+---
+title: "1. Factorisation"
+engine: pari-gp
+format: html
+---
+
+Factorisation is what PARI/GP is known for, and it is a good first thing to
+try, because the answers are big enough to be inconvenient anywhere else.
+
+## Integers
+
+```{gp}
+factor(2^128 + 1)
+```
+
+That is the seventh Fermat number, and gp is not impressed by it. The
+factorisation comes back as a matrix of primes and exponents, so it can be
+used as data rather than read as text:
+
+```{gp}
+f = factor(2^128 + 1);
+[matsize(f), f[1, 1], f[2, 1]]
+```
+
+`factorint` takes a flag saying how hard to try, which matters when a number
+has a large second-largest factor:
+
+```{gp}
+factorint(10^40 + 1, 1)
+```
+
+## Divisors and multiplicative functions
+
+The factorisation is what every multiplicative function is computed from:
+
+```{gp}
+divisors(360)
+```
+
+```{gp}
+[sigma(360), eulerphi(360), moebius(30), omega(360), bigomega(360)]
+```
+
+## Polynomials
+
+The same word means several things, and gp wants to know which:
+
+```{gp}
+factor(x^6 - 1)
+```
+
+Over a finite field:
+
+```{gp}
+factormod(x^4 + 1, 5)
+```
+
+Over the 5-adics, to four digits of precision:
+
+```{gp}
+factorpadic(x^2 + 1, 5, 4)
+```
+
+And over a number field — here $\mathbb{Q}(i)$, where $x^2+1$ finally splits:
+
+```{gp}
+nffactor(nfinit(y^2 + 1), x^2 + 1)
+```
+
+Next: [primes](02-primes.qmd).

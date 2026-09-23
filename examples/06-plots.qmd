@@ -1,0 +1,73 @@
+---
+title: "6. Plots"
+engine: pari-gp
+format: html
+---
+
+A cell whose output is an SVG document becomes a figure. gp has three
+functions that return SVG — `plothexport`, `plothrawexport` and
+`plotexport` — and all three work, because the engine looks at the output
+rather than at the name of the function.
+
+## A function of one variable
+
+```{gp}
+#| label: fig-sine
+#| fig-cap: "$\\sin x$ on $[-2\\pi, 2\\pi]$"
+#| fig-alt: "Two full periods of a sine wave"
+plothexport("svg", X = -2*Pi, 2*Pi, sin(X))
+```
+
+@fig-sine is a real cross-reference, because the cell has a `label` starting
+with `fig-`.
+
+## Something worth plotting
+
+The modulus of $\zeta$ on the critical line, with the first few zeros
+visible as the points where it touches the axis:
+
+```{gp}
+#| label: fig-zeta
+#| fig-cap: "$|\\zeta(1/2 + it)|$ for $0 \\le t \\le 40$"
+#| fig-alt: "A wavy curve touching zero six times"
+plothexport("svg", T = 0.1, 40, abs(zeta(1/2 + I*T)))
+```
+
+Six touchdowns, matching the six zeros [computed earlier](05-zeta.qmd).
+
+## Several curves at once
+
+Give `plothexport` a vector and it draws each component:
+
+```{gp}
+#| label: fig-bessel
+#| fig-cap: "The Bessel functions $J_0$, $J_1$ and $J_2$"
+#| fig-alt: "Three decaying oscillations, each starting at a different height"
+plothexport("svg", X = 0.01, 20, [besselj(0, X), besselj(1, X), besselj(2, X)])
+```
+
+## Scattered points
+
+`plothrawexport` takes two vectors and plots one against the other, without
+sampling a function. Here the gap to the next prime, for the first 300
+primes — the visible bands are the even gaps:
+
+```{gp}
+#| label: fig-gaps
+#| fig-cap: "Gap to the next prime, for the first 300 primes"
+#| fig-alt: "A scatter of points in horizontal bands at even heights"
+#| fig-width: 90%
+ps = primes(301);
+plothrawexport("svg", vector(300, i, ps[i]), vector(300, i, ps[i+1] - ps[i]))
+```
+
+`fig-width` is a CSS width, so the figure above is 90% of the text column.
+
+## What is not captured
+
+`ploth`, `plothraw` and `plotdraw` open a window on a screen device, and
+`psploth` writes PostScript. None of them returns SVG, so none of them
+becomes a figure here — that is a property of gp, not a limitation of the
+engine. Export is the thing to reach for.
+
+Back to the [start](01-factorisation.qmd).

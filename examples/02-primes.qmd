@@ -1,0 +1,69 @@
+---
+title: "2. Primes"
+engine: pari-gp
+format: html
+---
+
+## Finding them
+
+```{gp}
+p = nextprime(10^30)
+```
+
+`precprime` goes the other way, and the gap between the two neighbours of
+$10^{30}$ is `{gp} nextprime(10^30) - precprime(10^30)`:
+
+```{gp}
+[precprime(10^30), nextprime(10^30)]
+```
+
+## Counting them
+
+`primepi` counts primes up to a bound, exactly — not an estimate:
+
+```{gp}
+primepi(10^7)
+```
+
+The logarithmic integral is the classical comparison, and it overshoots here
+as it does for every bound anyone has checked:
+
+```{gp}
+[primepi(10^7), round(real(-eint1(-log(10^7))))]
+```
+
+A block of primes comes back as a vector:
+
+```{gp}
+primes([10^6, 10^6 + 60])
+```
+
+## Testing them
+
+`isprime` proves primality; `ispseudoprime` only makes it very likely. The
+2^521 − 1 Mersenne prime is proved in the time it takes to say so:
+
+```{gp}
+isprime(2^521 - 1)
+```
+
+## Looping over them
+
+`forprime` iterates without building the list first, which is how to count
+twin primes below a million without running out of memory:
+
+```{gp}
+twins = 0;
+forprime (q = 3, 10^6, if (isprime(q + 2), twins++));
+twins
+```
+
+The largest prime gap below a million, and where it starts:
+
+```{gp}
+best = 0; at = 0; last = 2;
+forprime (q = 3, 10^6, if (q - last > best, best = q - last; at = last); last = q);
+[at, best]
+```
+
+Next: [elliptic curves](03-elliptic-curves.qmd).

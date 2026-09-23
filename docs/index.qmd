@@ -3,6 +3,8 @@ title: "PARI/GP in Quarto"
 engine: pari-gp
 ---
 
+![](assets/logo.png){width=300 fig-align="center" fig-alt="PARI-GP-ENGINE"}
+
 `PARI-GP-ENGINE` lets you put [PARI/GP](https://pari.math.u-bordeaux.fr/) code
 in a Quarto document, run it, and show the results — with the code highlighted
 properly.
@@ -30,7 +32,8 @@ your `PATH`. See [Get started](getting-started.qmd).
 carries from cell to cell, exactly as it would at the `gp` prompt.
 
 **Highlighting.** A syntax definition covering the full function set of PARI/GP
-2.17, applied automatically — nothing to configure.
+2.17, applied automatically — nothing to configure. The engine itself works
+with gp 2.13 and newer.
 
 **Figures.** Plots exported as SVG become real figures, with captions and
 cross-references. See [Figures](figures.qmd).

@@ -1,5 +1,7 @@
 # PARI-GP-ENGINE
 
+![PARI-GP-ENGINE: a Quarto engine for PARI/GP](assets/logo.png)
+
 [![CI](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/test.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/test.yml)
 [![Clean install](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/clean-install.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/clean-install.yml)
 [![Release](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/release.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/releases/latest)
@@ -24,6 +26,14 @@ This repository provides two things that fit together but can be used apart:
 p = nextprime(10^30)
 factor(p - 1)
 ```
+
+| | |
+| --- | --- |
+| **Quarto** | 1.9 or newer |
+| **PARI/GP** | 2.13 or newer — CI tests 2.13.3, 2.15.5 and 2.17.3 |
+| **Platforms** | Linux and macOS, both tested in CI; Windows is implemented (`cmd` instead of `/bin/sh`, `install.ps1`) but not tested there |
+| **Install** | `quarto add oeistools/PARI-GP-ENGINE` |
+| **Licence** | MIT — gp is run as an external program, so its GPL does not reach this code |
 
 ## Requirements
 
@@ -210,6 +220,22 @@ The session survives either way — gp keeps reading, so later cells still run.
 
 Note that gp's `*** Warning:` lines (for instance when the stack has to grow)
 are warnings, not errors: they are shown but never stop a render.
+
+## Examples
+
+`examples/` holds a numbered series, each document short and about one thing.
+`make examples` renders all of them.
+
+| | |
+| --- | --- |
+| [`hello.qmd`](examples/hello.qmd) | The smallest thing that works. |
+| [`01-factorisation.qmd`](examples/01-factorisation.qmd) | Integers, divisors, and polynomials over $\mathbb{Q}$, $\mathbb{F}_p$, $\mathbb{Q}_p$ and a number field. |
+| [`02-primes.qmd`](examples/02-primes.qmd) | Finding, counting, testing and looping over primes — twin primes and prime gaps below a million. |
+| [`03-elliptic-curves.qmd`](examples/03-elliptic-curves.qmd) | $X_0(11)$: conductor, rank, torsion, $a_p$, and heights on a rank-one curve. |
+| [`04-number-fields.qmd`](examples/04-number-fields.qmd) | Class groups, units, how primes split, Galois groups, and the nine Heegner discriminants. |
+| [`05-zeta.qmd`](examples/05-zeta.qmd) | Special values, the critical line, `lfun`, and the Euler product. |
+| [`06-plots.qmd`](examples/06-plots.qmd) | Every kind of figure the engine captures, with captions and cross-references. |
+| [`number-theory.qmd`](examples/number-theory.qmd) | One longer tour, if you would rather read a single document. |
 
 ## Highlighting on its own
 

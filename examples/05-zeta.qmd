@@ -1,0 +1,92 @@
+---
+title: "5. Zeta and L-functions"
+engine: pari-gp
+format: html
+pari-gp:
+  precision: 40
+---
+
+`precision: 40` in the front matter applies to every cell on this page, so
+everything below is computed to 40 decimal digits.
+
+## Special values
+
+```{gp}
+zeta(2)
+```
+
+```{gp}
+Pi^2/6
+```
+
+Euler's evaluation, to the last digit. At odd arguments there is no such
+closed form, and $\zeta(3)$ is simply a number:
+
+```{gp}
+zeta(3)
+```
+
+At negative integers the values are rational, and they are Bernoulli numbers
+in disguise: $\zeta(-n) = -B_{n+1}/(n+1)$.
+
+```{gp}
+[zeta(-1), -bernfrac(2)/2 * 1.]
+```
+
+```{gp}
+[zeta(-3), -bernfrac(4)/4 * 1.]
+```
+
+## On the critical line
+
+$\zeta(1/2 + it)$ is complex, and its size is what the Riemann hypothesis is
+about:
+
+```{gp}
+zeta(1/2 + 14*I)
+```
+
+Small, but not zero — the first zero sits just above $t = 14$:
+
+```{gp}
+lfunzeros(1, [0, 40])
+```
+
+`{gp} #lfunzeros(1, [0, 40])` zeros below height 40. Feeding one back in
+gives zero to working precision:
+
+```{gp}
+abs(zeta(1/2 + I * lfunzeros(1, [0, 20])[1])) < 1e-30
+```
+
+## The L-function machinery
+
+`lfun` treats $\zeta$ as one $L$-function among many — `1` is the Riemann
+zeta function, and a Dirichlet character or an elliptic curve goes in the
+same slot:
+
+```{gp}
+[lfun(1, 2), zeta(2)]
+```
+
+The $L$-function of $X_0(11)$ at the centre of its critical strip, which
+vanishes to order zero because the curve has rank zero:
+
+```{gp}
+E = ellinit([0, -1, 1, -10, -20]);
+lfun(E, 1)
+```
+
+## The Euler product
+
+Truncated over the primes below $10^5$, it approaches $\zeta(2)$ from below:
+
+```{gp}
+prodeuler(p = 2, 10^5, 1/(1 - p^-2))
+```
+
+```{gp}
+zeta(2) - prodeuler(p = 2, 10^5, 1/(1 - p^-2))
+```
+
+Next: [plots](06-plots.qmd).

@@ -19,7 +19,9 @@ x = 1.5e10 + 0x1f;                         \\ floats and hex
 
 It covers comments, strings, decimal, hexadecimal and floating-point numbers,
 gp metacommands (`\p`, `\q`, `?fn`), member access, `default()` names, control
-flow, and every built-in function of PARI/GP 2.17.
+flow, and every built-in function of PARI/GP 2.17. On an older gp — the
+engine supports 2.13 and up — a few names it does not have are highlighted
+anyway; `make syntax` regenerates the list from whatever gp is installed.
 
 ## Without the engine
 

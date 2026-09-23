@@ -1,0 +1,86 @@
+---
+title: "4. Number fields"
+engine: pari-gp
+format: html
+---
+
+`bnfinit` computes the class group and the units of a number field, which is
+the expensive part; everything else is then a lookup. The second argument
+asks for the full certified computation.
+
+```{gp}
+K = bnfinit(x^3 - 2, 1);
+[K.disc, K.no, K.reg]
+```
+
+Discriminant $-108$, class number 1, and a regulator that is the logarithm of
+the fundamental unit. An integral basis for $\mathbb{Z}[\sqrt[3]{2}]$:
+
+```{gp}
+K.zk
+```
+
+```{gp}
+K.fu
+```
+
+So $\sqrt[3]{2} - 1$ generates the units, up to sign.
+
+## Splitting of primes
+
+Each prime above $p$ has a residue degree $f$ and a ramification index $e$,
+and $\sum ef = 3$. Listing $[f, e]$ for 2, 5 and 7 shows the three things
+that can happen:
+
+```{gp}
+[[[pr.f, pr.e] | pr <- idealfactor(K, p)[, 1]~] | p <- [2, 5, 7]]
+```
+
+2 ramifies ($e = 3$), 5 splits into a degree-1 and a degree-2 prime, and 7
+stays inert. That is exactly how $x^3 - 2$ factors modulo each:
+
+```{gp}
+[factormod(x^3 - 2, p)[, 1]~ | p <- [2, 5, 7]]
+```
+
+## Galois groups
+
+$x^3-2$ is not normal, and gp names the group of its Galois closure:
+
+```{gp}
+polgalois(x^3 - 2)
+```
+
+A quintic whose group is everything, which is why it has no solution by
+radicals:
+
+```{gp}
+polgalois(x^5 - x - 1)
+```
+
+## Choosing a better polynomial
+
+Two polynomials can define the same field and look nothing alike.
+`polredabs` picks the canonical small one:
+
+```{gp}
+polredabs(x^5 - 5*x^3 + 5*x - 7)
+```
+
+## Quadratic fields, quickly
+
+`quadclassunit` skips the general machinery. The class number of
+$\mathbb{Q}(\sqrt{-10007})$:
+
+```{gp}
+quadclassunit(-10007)[1]
+```
+
+Small imaginary quadratic fields of class number one — all nine of them, as
+Heegner and Stark proved:
+
+```{gp}
+[d | d <- [-163..-1], isfundamental(d) && quadclassunit(d)[1] == 1]
+```
+
+Next: [zeta and L-functions](05-zeta.qmd).

@@ -1,14 +1,24 @@
 # PLAN
 
-Where this project is going, and what has already been settled. The point of
-this file is that a decision made once should not have to be re-argued.
+What this project set out to do, what it did, and what it deliberately did
+not do. The point of this file is that a decision made once should not have
+to be re-argued — and now that the project is finished, that the next reader
+can tell quickly what is here and what is not.
 
-## Goal
+## Status — finished at v0.2.0, 2026-09-23
 
-Make PARI/GP a first-class language in Quarto: executable code cells, correct
-highlighting, and an install that is one command.
+**This project is complete.** The goal it set itself was to make PARI/GP a
+first-class language in Quarto: executable code cells, correct highlighting,
+and an install that is one command. That is done, released, and verified by
+installing the published release and rendering with it, on Linux and macOS,
+against three PARI/GP versions.
 
-## Status — v0.1.0, released 2026-09-22
+Nothing further is planned. The repository stays as it is — issues and the
+weekly clean-install job keep running — but the work is over, and the
+sections below are a record rather than a backlog. Anyone who wants to carry
+it further will find the open ends listed under *Left undone*.
+
+## What it does
 
 Done and tested:
 
@@ -22,7 +32,7 @@ Done and tested:
   the installed `gp`, injected into Pandoc by the engine itself.
 - `install.sh` / `install.ps1` with prerequisite checks, Makefile, test suite.
 
-Also in 0.1.0:
+Also shipped:
 
 **Figures.** A cell whose output is an SVG document becomes a figure, which
 covers all three gp functions that return SVG: `plothexport`,
@@ -96,19 +106,19 @@ That is the file Quarto loads on `quarto add`; users must not need Deno.
 **MIT, and gp is driven as an external program.**
 No PARI source is included or linked, so the GPL does not reach this code.
 
-## Next
+## What 0.2.0 added
 
 Triaged from the review in `draft/Mejoras del repositorio.md` (2026-09-22).
-Two of its red-priority items — publish a release, and check `quarto add`
-against it — are **done**: v0.1.0 is published, and installing from it into an
-empty directory was verified by hand. Its suggestion to renumber the first
+Both of its red-priority items — publish a release, and check `quarto add`
+against it — were done for 0.1.0. Its suggestion to renumber the first
 release 0.2.0 was considered and declined: nothing had been published, so
-there was no earlier release to differentiate from.
+there was no earlier release to differentiate from. Everything else it raised
+is below.
 
-### Robustness — done (2026-09-23)
+### Robustness
 
-All three items are in and verified against a real install and real gp
-builds, not only by a green workflow.
+All three items are in, and each was verified against a real install and real
+gp builds rather than only by a green workflow.
 
 **The clean-install test is automated.** `tests/clean-install.sh`
 (`make clean-install`) runs `quarto add` in an empty directory *outside* the
@@ -116,7 +126,7 @@ repository and renders a document using execution, inline code, highlighting
 and a figure. `REF=--local` installs the working tree instead, which is what
 `test.yml` runs on every push; `clean-install.yml` runs the published form on
 every release and weekly, so a release broken by a newer Quarto or PARI/GP is
-caught. Verified by running it against the published v0.1.0.
+caught. Verified against the published v0.1.0 on Linux and macOS.
 
 **The syntax definition is asserted on.** `tests/cases/highlight.qmd` checks
 that `\p`, `?factor`, `E.disc`, `0xFF`, `1.23e-10`, `\\` and `/* */`
@@ -130,43 +140,51 @@ category would breach.
 from conda-forge — the definition is regenerated from each gp rather than
 using the committed copy. conda-forge has **no 2.16**; the full linux-64 list
 is 2.9.x, 2.11.x, 2.13.2/3, 2.15.2–5 and 2.17.1–3. All three pass: 2.13.3
-yields 1169 functions and 2.15.5 yields 1185, against 1323 for 2.17.3, and the
-whole suite is green on each.
+yields 1169 functions and 2.15.5 yields 1185, against 1323 for 2.17.3.
+
+This is what establishes the supported floor as **2.13**, not 2.17. The badge,
+`Requirements`, the compatibility card and the docs all say so.
 
 ### Presentation
 
-**Restructure the README so Install / Use / Render come first**, before the
-explanation, and add a visible statement that there are two independent
-components: the engine (`engine: pari-gp`) and the syntax definition
-(`pari-gp.xml`), which is useful on its own for highlighting without
-execution. A short compatibility card (Quarto >= 1.9, PARI/GP 2.13+, MIT)
-would help too. The badge and `Requirements` already say 2.13 — the CI matrix
-established that the engine, the generator and the tests all work from 2.13.3
-on — so the card only has to collect what is already stated. `docs/index.qmd`
-and `docs/highlighting.qmd` still say 2.17 and should follow.
+**The compatibility card** is at the top of the README: Quarto, PARI/GP,
+platforms, install line, licence. The README already led with Install / Use /
+Render, and the two-component table — engine and syntax definition, usable
+apart — was already the first thing after the tagline.
 
-**More examples.** `examples/` currently has two documents. A numbered series
-— factorisation, primes, elliptic curves, number fields, zeta, plots — would
-show what the combination can do far better than prose.
+**The examples are a numbered series.** `examples/01-factorisation` through
+`06-plots`, each short and about one thing, with `hello.qmd` in front of them
+and the longer `number-theory.qmd` tour behind. Every value in them was
+checked against what is known: the twin-prime count below a million, the
+largest prime gap, the coefficients of `X_0(11)`, the nine Heegner
+discriminants, the first six zeros of zeta.
 
-**A single compact options table** in `docs/options.qmd` (option, scope,
-default) before the detailed sections.
+**One compact options table** opens `docs/options.qmd`: all 21 options with
+scope and default, before the detailed sections.
 
-### Features
+**A logo**, in `assets/`. The full mark in the README and on the docs home
+page; a cropped icon in the navbar and as the favicon, because the wordmark
+is illegible at 30px. `docs/assets` is a symlink to `../assets`, the same
+trick as `docs/_extensions`.
 
-**v0.3 — better output shaping.** An option for gp's `output` default
-(prettymatrix vs raw), and optional LaTeX output via gp's `\x`/TeX mode so
-that results can be typeset as maths rather than monospace. `prelude` is the
-workaround today.
+## Left undone
 
-**Later — a `gp` cell language under other engines.** Quarto allows only one
-engine per document, so a document cannot mix `{gp}` and `{python}`. A cell
-*language handler* rather than an engine would lift that.
+These were considered and not done. They are the open ends, recorded for
+whoever picks this up — not a backlog this project intends to work through.
 
-### Future architecture
+**Better output shaping.** An option for gp's `output` default (prettymatrix
+vs raw), and optional LaTeX output via gp's `\x`/TeX mode so results can be
+typeset as maths rather than monospace. `prelude` is the workaround today,
+and it is a real one: `default(output, 0)` in the front matter already
+changes how everything prints.
 
-The review makes a good point that PARI/GP language support is potentially
-larger than one Quarto engine:
+**A `gp` cell language under other engines.** Quarto allows only one engine
+per document, so a document cannot mix `{gp}` and `{python}`. A cell
+*language handler* rather than an engine would lift that. This is the single
+most useful thing left, and the most work.
+
+**A Jupyter kernel and VS Code integration.** PARI/GP language support is
+potentially larger than one Quarto engine:
 
 ```text
 PARI/GP language support
@@ -176,10 +194,14 @@ PARI/GP language support
         └── VS Code integration
 ```
 
-Nothing here is committed. It is recorded so the repository is not painted
-into a corner: the syntax definition is already a standalone file, and the
-engine already treats gp as an external program, which keeps both options
-open. ER2 can depend on this rather than absorbing it.
+Neither of the lower two was started. They are recorded because the
+repository is not painted into a corner: the syntax definition is already a
+standalone file that any of them can use, and the engine already treats gp as
+an external program. A successor can depend on this rather than absorbing it.
+
+**Windows in CI.** The engine implements Windows (`cmd` instead of
+`/bin/sh`, and `install.ps1`), but no runner ever exercises it. The
+compatibility card says so plainly rather than implying it is tested.
 
 ### Decided against
 

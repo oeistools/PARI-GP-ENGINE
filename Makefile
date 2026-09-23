@@ -93,6 +93,10 @@ release-check: ## Check VERSION, _extension.yml and CHANGELOG agree: make releas
 	 got="$$(sed -n 's/^version: *//p' CITATION.cff)"; \
 	 [ "$$got" = "$$v" ] || { echo "CITATION.cff is $$got, expected $$v" >&2; fail=1; }; \
 	 grep -q "^## \[$$v\]" CHANGELOG.md || { echo "CHANGELOG.md has no section for $$v" >&2; fail=1; }; \
+	 want="$$(sed -n "s/^## \[$$v\] — //p" CHANGELOG.md | head -1)"; \
+	 got="$$(sed -n 's/^date-released: *"\{0,1\}\([0-9-]*\).*/\1/p' CITATION.cff)"; \
+	 [ -n "$$want" ] && [ "$$got" != "$$want" ] && \
+	   { echo "CITATION.cff date-released is $$got, but CHANGELOG.md dates $$v to $$want" >&2; fail=1; }; \
 	 [ $$fail -eq 0 ] && echo "version $$v is consistent everywhere"; exit $$fail
 
 tag: release-check ## Tag the current commit and push it, which triggers the release workflow
@@ -119,4 +123,6 @@ bump-version: ## Set the version everywhere: make bump-version V=0.2.0
 	@echo "$(V)" > VERSION
 	@sed -i.bak -E 's/^version: .*/version: $(V)/' $(EXT_DIR)/_extension.yml && rm -f $(EXT_DIR)/_extension.yml.bak
 	@sed -i.bak -E 's/^version: .*/version: $(V)/' CITATION.cff && rm -f CITATION.cff.bak
-	@echo "version is now $(V)"
+	@sed -i.bak -E 's/^date-released: .*/date-released: "$(shell date +%F)"/' CITATION.cff \
+	  && rm -f CITATION.cff.bak
+	@echo "version is now $(V), released $(shell date +%F)"

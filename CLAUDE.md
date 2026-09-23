@@ -18,8 +18,10 @@ _extensions/pari-gp/
   pari-gp.xml       GENERATED syntax definition — never edit by hand
 src/pari-gp.ts      the engine source; edit this
 tools/gen_xml.py    generates pari-gp.xml from the installed gp
-tests/              run-tests.sh, cases/*.qmd, expect-fail/*.qmd
-examples/           documents shown in the README
+tests/              run-tests.sh, clean-install.sh, cases/*.qmd, expect-fail/*.qmd
+examples/           hello.qmd, the numbered series 01..06, number-theory.qmd
+assets/             logo.png (README, docs home) and logo-mark.png (navbar,
+                    favicon); docs/assets is a symlink to it
 _quarto.yml         makes the repo a Quarto project so examples/ and tests/
                     find _extensions without installing the extension
 ```
@@ -55,13 +57,15 @@ Run it when anything about packaging changes — the extension directory,
 `docs/` is a separate Quarto project (it has its own `_quarto.yml`), and a
 nested project does **not** find the parent's `_extensions` — hence the
 `docs/_extensions` symlink. Removing it makes every docs page fall back to
-jupyter and fail. `make docs` renders it; `pages.yml` deploys it.
+jupyter and fail. `docs/assets` is the same trick for the logo: one copy in
+`assets/`, reachable from both the README and the site. `make docs` renders it; `pages.yml` deploys it.
 
 ## Releasing
 
 `make bump-version V=x.y.z` updates `VERSION`, `_extension.yml` and
-`CITATION.cff`; write the `CHANGELOG.md` section by hand; `make release-check`
-verifies all four agree; `make tag` pushes the tag, and
+`CITATION.cff` (version *and* `date-released`); write the `CHANGELOG.md`
+section by hand; `make release-check` verifies all four agree, including that
+the citation date matches the date on the changelog heading; `make tag` pushes the tag, and
 `.github/workflows/release.yml` publishes the release.
 
 Release notes are written to a **file** and passed with `gh release create
@@ -70,21 +74,23 @@ backticks, which a shell would run as command substitution.
 
 ## Where things stand
 
-**v0.1.0 is published** (2026-09-22): <https://github.com/oeistools/PARI-GP-ENGINE/releases/tag/v0.1.0>.
-It was verified end to end, not just by a green workflow — the released
-extension was installed with `quarto add` into an empty directory and used to
-render a document with execution, inline code, highlighting and a figure.
+**The project is finished.** v0.2.0 (2026-09-23) is the last planned release;
+v0.1.0 came the day before. Both were verified end to end rather than by a
+green workflow alone — the released extension is installed with `quarto add`
+into an empty directory and used to render a document with execution, inline
+code, highlighting and a figure, on Linux and macOS, by
+`.github/workflows/clean-install.yml`.
 
 The docs site is live at <https://oeistools.github.io/PARI-GP-ENGINE/>.
 
-Since then (unreleased, 2026-09-23) the three robustness items from
-`PLAN.md` are done: the clean-install check is a script and a workflow, the
-generated XML and the highlighting of `\p`, `?factor`, `E.disc`, hex and float
-literals and comments are asserted on, and CI runs the suite against PARI/GP
-2.13.3, 2.15.5 and 2.17.3 from conda-forge. All three were verified locally
-against real conda-forge gp builds, not only written into a workflow.
+`PLAN.md` is now a record, not a backlog: what the project did, the decisions
+behind it, and — under *Left undone* — the open ends a successor would pick
+up. Read it before proposing work here, because "not done" mostly means
+"deliberately not done".
 
-`PLAN.md` holds the triaged backlog for what comes next; start there.
+Maintenance that still happens by itself: the weekly `clean-install` job,
+which is what would catch a newer Quarto or PARI/GP breaking the published
+release.
 
 ## The draft/ folder
 
