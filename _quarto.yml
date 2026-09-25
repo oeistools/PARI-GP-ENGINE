@@ -6,4 +6,3 @@ project:
   render:
     - examples/*.qmd
     - tests/cases/*.qmd
-    - tests/freeze/*.qmd

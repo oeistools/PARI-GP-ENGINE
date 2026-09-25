@@ -107,6 +107,7 @@ tag: release-check ## Tag the current commit and push it, which triggers the rel
 
 clean: ## Remove rendered documents and caches
 	rm -rf .quarto _site docs/_site docs/.quarto _freeze
+	rm -rf tests/freeze/_freeze tests/freeze/.quarto
 	rm -f  examples/*.html tests/cases/*.html tests/expect-fail/*.html tests/freeze/*.html
 	rm -f  tests/cases/*.md
 	rm -rf examples/*_files tests/cases/*_files tests/expect-fail/*_files docs/*_files

@@ -54,6 +54,8 @@ on every page, deployed to GitHub Pages.
 **Caching.** `canFreeze` is on, so `freeze: auto` / `freeze: true` work and
 `_freeze/` replays instead of re-running gp. Quarto owns the cache key; the
 engine only had to make what it stores portable — see the decision below.
+Quarto honours `freeze` only in a whole-project render, which is why
+`tests/freeze/` is a project of its own.
 
 ## Settled decisions
 

@@ -134,6 +134,9 @@ freeze: auto      # re-run only when the document itself changes
 ```
 
 `freeze: true` never re-runs, `freeze: auto` re-runs when the source changes.
+Quarto applies `freeze` only when it renders the whole project (`quarto
+render` with no file name); `quarto render doc.qmd` always runs gp, and so
+does rendering a document that is not in a project at all.
 The cache lives in `_freeze/` and is meant to be committed, so collaborators
 and CI reuse it rather than needing PARI/GP installed. What the engine stores
 there is relative to the document, so the cache replays on any machine.

@@ -6,6 +6,21 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- The freeze test could not fail. It rendered a single file, which Quarto
+  always executes whatever `freeze` says, and the value it compared came from
+  gp's `random()`, which starts from the same seed every session, so the
+  re-execution printed the same number. `tests/freeze/` is now a project of
+  its own, rendered whole, and seeds from the clock. The check that the
+  cached syntax-definition path is not absolute was vacuous too: it grepped
+  for a pattern that the pretty-printed JSON splits across lines.
+- A code span that shows a fence in prose, such as `` ` ```{gp} ` ``, was taken
+  for an inline expression and replaced by nothing. An inline expression now
+  needs a lone opening backtick and whitespace after `{gp}`, as in Quarto.
+- The README and the options page now say that `freeze` applies only when
+  the whole project is rendered.
+
 ## [0.2.1] — 2026-09-23
 
 A CI-only release. Nothing that `quarto add` installs has changed since

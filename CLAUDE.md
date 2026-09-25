@@ -158,6 +158,18 @@ lines with a per-run nonce. A missing sentinel means gp died early or a cell
 left a brace, bracket or string open; the engine reports that rather than
 producing silently wrong output.
 
+**`freeze` applies only to a render of a whole project.** `quarto render
+doc.qmd` always executes, whatever `freeze` says. And gp starts every session
+from the same random seed, so a re-execution prints the same `random()` as
+the first run. Together they let the original freeze test pass without
+testing anything; that is why `tests/freeze/` is its own project, rendered
+whole, and why its document seeds from `getwalltime()`.
+
+**An inline expression needs whitespace after `{gp}`.** Without the
+lookarounds and `\s+` in `kInlineGp`, prose that shows a fence as
+`` ` ```{gp} ` `` matched as an inline expression and its text vanished from
+the page.
+
 **conda-forge has no PARI/GP 2.16.** The linux-64 versions are 2.9.x,
 2.11.x, 2.13.2/3, 2.15.2–5 and 2.17.1–3, which is why the CI matrix is
 2.13.3 / 2.15.5 / 2.17.3. The matrix regenerates `pari-gp.xml` from each gp

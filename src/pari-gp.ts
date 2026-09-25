@@ -386,8 +386,13 @@ function attrEscape(s: string): string {
  * Inline code: `` `{gp} expr` `` in prose. Quarto's own inline syntax, matched
  * only outside fenced blocks so that a documentation page may show the syntax
  * without it being evaluated.
+ *
+ * The opening backtick must stand alone, and the expression must be separated
+ * from {gp} by whitespace and not be blank (Quarto's own rule). Otherwise the
+ * last backtick of a fence shown in prose, as in ` ```{gp} `, opens a match
+ * and the span is replaced by the output of an empty expression.
  */
-const kInlineGp = /`\{gp\}([^`]+)`/g;
+const kInlineGp = /(?<!`)`\{gp\}\s+([^`\s][^`]*)`(?!`)/g;
 
 /** Split markdown into fenced-code and prose runs; only prose is scanned. */
 function proseRuns(md: string): { text: string; code: boolean }[] {

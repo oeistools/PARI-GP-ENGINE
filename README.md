@@ -7,6 +7,7 @@
 [![CI](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/test.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/test.yml)
 [![Clean install](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/clean-install.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/clean-install.yml)
 [![Release](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/release.yml/badge.svg)](https://github.com/oeistools/PARI-GP-ENGINE/releases/latest)
+[![Version](https://img.shields.io/github/v/release/oeistools/PARI-GP-ENGINE?label=version)](https://github.com/oeistools/PARI-GP-ENGINE/releases/latest)
 [![Pages](https://github.com/oeistools/PARI-GP-ENGINE/actions/workflows/pages.yml/badge.svg)](https://oeistools.github.io/PARI-GP-ENGINE/)
 [![Quarto](https://img.shields.io/badge/quarto-%E2%89%A5%201.9-2596be)](https://quarto.org)
 [![PARI/GP](https://img.shields.io/badge/PARI%2FGP-%E2%89%A5%202.13-8b0000)](https://pari.math.u-bordeaux.fr/)
@@ -202,6 +203,9 @@ freeze: auto      # re-run only when the document changes
 ```
 
 `freeze: true` never re-runs; `freeze: auto` re-runs when the source changes.
+Quarto applies `freeze` only when it renders the whole project (`quarto
+render` with no file name); `quarto render doc.qmd` always runs gp, and so
+does rendering a document that is not in a project at all.
 Commit `_freeze/` so the cache is shared with collaborators and CI — the paths
 the engine stores in it are relative, so it replays on any machine.
 

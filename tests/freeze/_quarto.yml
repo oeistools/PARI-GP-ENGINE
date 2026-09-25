@@ -1,0 +1,7 @@
+# A project of its own, because Quarto honours `freeze` only in a render of a
+# whole project: `quarto render file.qmd` always executes the file. The root
+# _quarto.yml must therefore not list this directory. `_extensions` is a
+# symlink to the repository's, as in docs/, since a nested project does not
+# find its parent's.
+project:
+  type: default

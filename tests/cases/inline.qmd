@@ -20,3 +20,6 @@ The prime is `{gp} p`.
 ```
 
 After the block, substitution still works: `{gp} 2^10`.
+
+A code span that shows a fence, ` ```{gp} `, is not an expression, and
+neither is ``` `{gp}` ``` on its own.

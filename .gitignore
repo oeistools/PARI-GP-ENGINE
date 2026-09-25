@@ -18,6 +18,9 @@ docs/.quarto/
 /tests/cases/*.md
 /tests/expect-fail/*.html
 /tests/freeze/*.html
+# tests/freeze/ is a project of its own (see tests/run-tests.sh)
+/tests/freeze/_freeze/
+/tests/freeze/.quarto/
 
 # PARI/GP
 *.gpi

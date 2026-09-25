@@ -6,5 +6,7 @@ freeze: true
 ---
 
 ```{gp}
-random(10^18)
+\\ gp starts from the same seed every time, so a re-execution would print
+\\ the same number and the test could not fail. Seed from the clock instead.
+setrand(getwalltime()); random(10^18)
 ```

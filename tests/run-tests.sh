@@ -75,6 +75,8 @@ run_case inline \
   present 'is 100000000000000000039'  'inline code is evaluated' \
   present 'has 21 digits'             'inline code sees the state of earlier cells' \
   present '`{gp} p`'                  'inline code inside a fenced block is left alone' \
+  present '<code>```{gp}</code>'      'a code span showing a fence is not evaluated' \
+  present '<code>`{gp}`</code>'       'a bare `{gp}` span is not evaluated' \
   present 'still works: 1024'         'substitution resumes after a fenced block'
 
 # Highlighting is a component of its own: pari-gp.xml is useful without the
@@ -138,27 +140,39 @@ fi
 # Freezing: a second render must replay the cache instead of re-running gp,
 # and the cached pandoc options must not contain an absolute path, because
 # _freeze/ is committed and replayed on other machines.
+#
+# Two things make this test able to fail, and neither may be "simplified" away:
+# - tests/freeze/ is a project of its own, rendered whole. Quarto honours
+#   `freeze` only in a render of a whole project; `quarto render file.qmd`
+#   always executes, so rendering the file would re-run gp every time.
+# - the document seeds random() from the clock. gp starts from the same seed
+#   in every session, so a re-execution would print the same number anyway.
 if [ -z "$FILTER" ] || [[ "freeze" == *"$FILTER"* ]]; then
   echo "• freeze"
-  rm -rf _freeze tests/freeze/freeze.html
-  if quarto render tests/freeze/freeze.qmd --to html >/tmp/qpg-frz.log 2>&1; then
+  rm -rf tests/freeze/_freeze tests/freeze/freeze.html
+  if quarto render tests/freeze >/tmp/qpg-frz.log 2>&1; then
     first=$(grep -oE '[0-9]{15,}' tests/freeze/freeze.html | head -1)
-    quarto render tests/freeze/freeze.qmd --to html >/tmp/qpg-frz2.log 2>&1
+    quarto render tests/freeze >/tmp/qpg-frz2.log 2>&1
     second=$(grep -oE '[0-9]{15,}' tests/freeze/freeze.html | head -1)
     if [ -n "$first" ] && [ "$first" = "$second" ]; then
       green "  PASS  a frozen document is not re-executed"; PASS=$((PASS+1))
     else
       red   "  FAIL  the document was re-executed despite freeze: true"; FAIL=$((FAIL+1))
     fi
-    frz=$(find _freeze -name '*.json' | head -1)
-    if grep -q '"\.\./' "$frz" && ! grep -q '"syntax-definitions":\["/' "$frz"; then
+    # The JSON is pretty-printed, so parse it rather than grep for a pattern
+    # that a line break can hide.
+    frz=$(find tests/freeze/_freeze -name '*.json' | head -1)
+    if python3 -c '
+import json, sys
+defs = json.load(open(sys.argv[1]))["result"]["pandoc"]["syntax-definitions"]
+sys.exit(not defs or any(d.startswith("/") for d in defs))' "$frz" 2>/dev/null; then
       green "  PASS  the cached syntax-definition path is relative"; PASS=$((PASS+1))
     else
       red   "  FAIL  the cached syntax-definition path is not relative"; FAIL=$((FAIL+1))
     fi
     check tests/freeze/freeze.html present 'parigp' 'a frozen document is still highlighted'
   else
-    red "  ERROR rendering tests/freeze/freeze.qmd"; FAIL=$((FAIL+1))
+    red "  ERROR rendering the tests/freeze project"; FAIL=$((FAIL+1))
   fi
 fi
 
