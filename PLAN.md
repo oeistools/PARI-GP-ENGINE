@@ -5,10 +5,12 @@ not do. The point of this file is that a decision made once should not have
 to be re-argued — and now that the project is finished, that the next reader
 can tell quickly what is here and what is not.
 
-## Status — finished at v0.2.1, 2026-09-23
+## Status — finished at v0.2.2, 2026-09-25
 
-**This project is complete.** v0.2.0 is the feature release and v0.2.1 a
-CI-only follow-up; nothing that `quarto add` installs differs between them.
+**This project is complete.** v0.2.0 is the feature release, v0.2.1 a
+CI-only follow-up, and v0.2.2 a bug fix: an inline expression now needs
+whitespace after `{gp}`, so prose that shows a ` ```{gp} ` fence keeps its
+text. It also made the freeze test able to fail.
 The goal the project set itself was to make PARI/GP a
 first-class language in Quarto: executable code cells, correct highlighting,
 and an install that is one command. That is done, released, and verified by

@@ -76,9 +76,11 @@ backticks, which a shell would run as command substitution.
 
 ## Where things stand
 
-**The project is finished.** v0.2.1 (2026-09-23) is the last release — a
+**The project is finished.** v0.2.2 (2026-09-25) is the last release: it
+fixes inline code taking a code span that shows a fence for an expression,
+and makes the freeze test able to fail. Before it came v0.2.1 (2026-09-23), a
 CI-only follow-up to v0.2.0 the same day, which was itself the day after
-v0.1.0. Both were verified end to end rather than by a
+v0.1.0. Each was verified end to end rather than by a
 green workflow alone — the released extension is installed with `quarto add`
 into an empty directory and used to render a document with execution, inline
 code, highlighting and a figure, on Linux and macOS, by

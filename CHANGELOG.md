@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.2] — 2026-09-25
+
+One fix to the engine, for inline code, and a freeze test that can now fail.
+
 ### Fixed
 
 - The freeze test could not fail. It rendered a single file, which Quarto
@@ -145,7 +149,8 @@ First release.
   committed `pari-gp.js` matches its TypeScript source. A `v*` tag builds the
   release archives and publishes the release.
 
-[Unreleased]: https://github.com/oeistools/PARI-GP-ENGINE/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/oeistools/PARI-GP-ENGINE/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/oeistools/PARI-GP-ENGINE/releases/tag/v0.2.2
 [0.2.1]: https://github.com/oeistools/PARI-GP-ENGINE/releases/tag/v0.2.1
 [0.2.0]: https://github.com/oeistools/PARI-GP-ENGINE/releases/tag/v0.2.0
 [0.1.0]: https://github.com/oeistools/PARI-GP-ENGINE/releases/tag/v0.1.0
