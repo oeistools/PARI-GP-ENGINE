@@ -254,7 +254,7 @@ function svgForInlineUse(svg, opts) {
 function attrEscape(s) {
   return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
-var kInlineGp = /`\{gp\}([^`]+)`/g;
+var kInlineGp = /(?<!`)`\{gp\}\s+([^`\s][^`]*)`(?!`)/g;
 function proseRuns(md) {
   const runs = [];
   const fence2 = /^(\s*)(`{3,}|~{3,}).*$/gm;
