@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The web no longer loads Google Fonts (sin-google-fonts.scss: \$web-font-path: false; no font links).
+
 ## [0.2.2] — 2026-09-25
 
 One fix to the engine, for inline code, and a freeze test that can now fail.
